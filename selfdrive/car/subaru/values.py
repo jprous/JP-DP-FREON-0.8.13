@@ -169,9 +169,11 @@ FW_VERSIONS = {
       b'\xa3  \024\000',
       b'\xa3 \031\024\000',
       b'\xa3  \024\001',
+      b'\xa3 \x18a\x00',          #ES non LKAS regional model
     ],
     (Ecu.eps, 0x746, None): [
       b'\x8d\xc0\004\000',
+      b'\x8d\xc0\x00\x00',        #ES non LKAS regional model
     ],
     (Ecu.fwdCamera, 0x787, None): [
       b'\000\000e!\037@ \021',
@@ -185,6 +187,7 @@ FW_VERSIONS = {
       b'\xcb\"`@\a',
       b'\xcb\"`p\a',
       b'\xf1\x00\xa2\x10\n',
+      b'\xb6\xa9`p\x07',        #ES non LKAS 2L regional model
     ],
     (Ecu.transmission, 0x7e1, None): [
       b'\032\xf6B0\000',
@@ -192,6 +195,7 @@ FW_VERSIONS = {
       b'\032\xf6b`\000',
       b'\032\xf6B`\000',
       b'\xf1\x00\xa4\x10@',
+      b'\x1a\xe5B\x00\x00',     #ES non LKAS 2L regional model
     ],
   },
   CAR.FORESTER_PREGLOBAL: {
