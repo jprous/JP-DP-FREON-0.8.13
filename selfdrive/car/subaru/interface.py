@@ -119,7 +119,8 @@ class CarInterface(CarInterfaceBase):
     ret = self.CS.update(self.cp, self.cp_cam)
     # dp
     self.dragonconf = dragonconf
-    self.dragonconf.dpAtl = True #in order to allow the gas to be pressed at 0 speed
+    #in order to allow the gas to be pressed at 0 speed
+    self.dragonconf.dpAtl = True
     ret.cruiseState.enabled = common_interface_atl(ret, dragonconf.dpAtl)
     ret.canValid = self.cp.can_valid and self.cp_cam.can_valid
     ret.steeringRateLimited = self.CC.steer_rate_limited if self.CC is not None else False
