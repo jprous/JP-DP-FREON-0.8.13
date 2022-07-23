@@ -71,6 +71,10 @@ class CarState(CarStateBase):
       ret.steerWarning = cp.vl["Steering_Torque"]["Steer_Warning"] == 1
       ret.cruiseState.nonAdaptive = cp_cam.vl["ES_DashStatus"]["Conventional_Cruise"] == 1
       self.es_lkas_msg = copy.copy(cp_cam.vl["ES_LKAS_State"])
+      self.cruise_state = cp_cam.vl["ES_DashStatus"]["Cruise_State"]
+    self.car_follow = cp_cam.vl["ES_Distance"]["Car_Follow"]
+    self.close_distance = cp_cam.vl["ES_Distance"]["Close_Distance"]
+    self.throttle_msg = copy.copy(cp.vl["Throttle"])
     self.es_distance_msg = copy.copy(cp_cam.vl["ES_Distance"])
 
     # dp - brake lights
@@ -125,6 +129,15 @@ class CarState(CarStateBase):
 
     if CP.carFingerprint not in PREGLOBAL_CARS:
       signals += [
+        ("Counter", "Throttle"),
+        ("Signal1", "Throttle"),
+        ("Engine_RPM", "Throttle"),
+        ("Signal2", "Throttle"),
+        ("Throttle_Pedal", "Throttle"),
+        ("Throttle_Cruise", "Throttle"),
+        ("Throttle_Combo", "Throttle"),
+        ("Signal1", "Throttle"),
+        ("Off_Accel", "Throttle"),
         ("Steer_Warning", "Steering_Torque"),
         ("Brake", "Brake_Status"),
         ("UNITS", "Dashlights"),
@@ -137,9 +150,28 @@ class CarState(CarStateBase):
         ("CruiseControl", 20),
       ]
     else:
-      signals.append(("UNITS", "Dash_State2"))
+      signals += [
+        ("Throttle_Pedal", "Throttle"),
+        ("Counter", "Throttle"),
+        ("Signal1", "Throttle"),
+        ("Not_Full_Throttle", "Throttle"),
+        ("Signal2", "Throttle"),
+        ("Engine_RPM", "Throttle"),
+        ("Off_Throttle", "Throttle"),
+        ("Signal3", "Throttle"),
+        ("Throttle_Cruise", "Throttle"),
+        ("Throttle_Combo", "Throttle"),
+        ("Throttle_Body", "Throttle"),
+        ("Off_Throttle_2", "Throttle"),
+        ("Signal4", "Throttle"),
+        ("UNITS", "Dash_State2"),
+        ("Brake_Pedal", "Brake_Pedal"),
+      ]
 
+      checks.append(("BodyInfo", 1))
       checks.append(("Dash_State2", 1))
+      checks.append(("Brake_Pedal", 50))
+      checks.append(("CruiseControl", 50))
 
     if CP.carFingerprint == CAR.FORESTER_PREGLOBAL:
       checks += [
@@ -190,6 +222,7 @@ class CarState(CarStateBase):
       signals = [
         ("Cruise_Set_Speed", "ES_DashStatus"),
         ("Conventional_Cruise", "ES_DashStatus"),
+        ("Cruise_State", "ES_DashStatus"),
 
         ("Counter", "ES_Distance"),
         ("Signal1", "ES_Distance"),
