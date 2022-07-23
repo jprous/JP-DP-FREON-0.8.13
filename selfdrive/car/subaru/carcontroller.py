@@ -6,15 +6,28 @@ from common.dp_common import common_controller_ctrl
 
 class CarController():
   def __init__(self, dbc_name, CP, VM):
+    self.CP = CP
     # dp
     self.last_blinker_on = False
     self.blinker_end_frame = 0.
-
+    
     self.apply_steer_last = 0
     self.es_distance_cnt = -1
     self.es_lkas_cnt = -1
+    self.es_dashstatus_cnt = -1
+    self.throttle_cnt = -1
+    self.brake_pedal_cnt = -1                                                 
     self.cruise_button_prev = 0
+    self.prev_close_distance = 0
+    self.prev_standstill = False
+    self.standstill_start = 0                                                       
     self.steer_rate_limited = False
+    self.frame = 0
+    self.sng_acc_resume = False
+    self.sng_acc_resume_cnt = -1
+    self.manual_hold = False
+    self.prev_cruise_state = 0
+    self.prev_close_distance = 0
 
     self.p = CarControllerParams(CP)
     self.packer = CANPacker(DBC[CP.carFingerprint]['pt'])
@@ -56,7 +69,43 @@ class CarController():
 
       self.apply_steer_last = apply_steer
 
+    # *** stop and go ***
+    throttle_cmd = False
+    
+   
+    #if CS.CP.carFingerprint not in PREGLOBAL_CARS:
+    # Record manual hold set while in standstill and no car in front
+    if CS.out.standstill and self.prev_cruise_state == 1 and CS.cruise_state == 3 and CS.car_follow == 0:
+      self.manual_hold = True
+    # Cancel manual hold when car starts moving
+    if not CS.out.standstill:
+      self.manual_hold = False
+    if (c.enabled                                            # ACC active
+        and not self.manual_hold
+        and CS.car_follow == 1                             # lead car
+        and CS.cruise_state == 3                           # ACC HOLD (only with EPB)
+        and CS.out.standstill                              # must be standing still
+        and CS.close_distance > 3                          # acc resume min trigger threshold (m)
+        and CS.close_distance < 4.5                        # acc resume max trigger threshold (m)
+        and CS.close_distance > self.prev_close_distance): # distance with lead car is increasing
+      self.sng_acc_resume = True
+    self.prev_cruise_state = CS.cruise_state
 
+    if self.sng_acc_resume:
+      if self.sng_acc_resume_cnt < 5:
+        throttle_cmd = True
+        self.sng_acc_resume_cnt += 1
+      else:
+        self.sng_acc_resume = False
+        self.sng_acc_resume_cnt = -1
+
+    # Cancel ACC if stopped, brake pressed and not stopped behind another car
+    if c.enabled and CS.out.brakePressed and CS.car_follow == 0 and CS.out.standstill:
+      pcm_cancel_cmd = True
+
+    self.prev_close_distance = CS.close_distance
+
+    
     # *** alerts and pcm cancel ***
 
     if CS.CP.carFingerprint in PREGLOBAL_CARS:
@@ -87,6 +136,10 @@ class CarController():
       if self.es_lkas_cnt != CS.es_lkas_msg["Counter"]:
         can_sends.append(subarucan.create_es_lkas(self.packer, CS.es_lkas_msg, enabled, visual_alert, left_line, right_line, left_lane_depart, right_lane_depart))
         self.es_lkas_cnt = CS.es_lkas_msg["Counter"]
+        
+      if self.throttle_cnt != CS.throttle_msg["Counter"]:
+        can_sends.append(subarucan.create_throttle(self.packer, CS.throttle_msg, throttle_cmd))
+        self.throttle_cnt = CS.throttle_msg["Counter"]
 
     new_actuators = actuators.copy()
     new_actuators.steer = self.apply_steer_last / self.p.STEER_MAX
