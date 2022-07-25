@@ -70,13 +70,16 @@ class CarState(CarStateBase):
     else:
       ret.steerWarning = cp.vl["Steering_Torque"]["Steer_Warning"] == 1
       ret.cruiseState.nonAdaptive = cp_cam.vl["ES_DashStatus"]["Conventional_Cruise"] == 1
+      self.brake_pedal_msg = copy.copy(cp.vl["Brake_Pedal"])
       self.es_lkas_msg = copy.copy(cp_cam.vl["ES_LKAS_State"])
       self.cruise_state = cp_cam.vl["ES_DashStatus"]["Cruise_State"]
     self.car_follow = cp_cam.vl["ES_Distance"]["Car_Follow"]
     self.close_distance = cp_cam.vl["ES_Distance"]["Close_Distance"]
     self.throttle_msg = copy.copy(cp.vl["Throttle"])
     self.es_distance_msg = copy.copy(cp_cam.vl["ES_Distance"])
-
+    self.es_dashstatus_msg = copy.copy(cp_cam.vl["ES_DashStatus"])
+    self.es_status_2_msg = copy.copy(cp_cam.vl["ES_Status_2"])
+    
     # dp - brake lights
     ret.brakeLights = ret.brakePressed
 
@@ -257,12 +260,21 @@ class CarState(CarStateBase):
         ("LKAS_Right_Line_Visible", "ES_LKAS_State"),
         ("LKAS_Alert", "ES_LKAS_State"),
         ("Signal3", "ES_LKAS_State"),
+        ("LKAS_Enable_1", "ES_LKAS_State", 0),
+        ("Signal4", "ES_LKAS_State", 0),
+        ("LKAS_Enable_2", "ES_LKAS_State", 0),
+        ("Signal5", "ES_LKAS_State", 0),
+
+        ("Counter", "ES_Status_2", 0),
+        ("Signal1", "ES_Status_2", 0),
+        ("Signal2", "ES_Status_2", 0),
       ]
 
       checks = [
         ("ES_DashStatus", 10),
         ("ES_Distance", 20),
         ("ES_LKAS_State", 10),
+        ("ES_Status_2", 10),
       ]
 
     return CANParser(DBC[CP.carFingerprint]["pt"], signals, checks, 2)
