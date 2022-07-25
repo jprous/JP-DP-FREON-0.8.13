@@ -24,6 +24,9 @@ def create_es_distance(packer, es_distance_msg, pcm_cancel_cmd):
   values = copy.copy(es_distance_msg)
   if pcm_cancel_cmd:
     values["Cruise_Cancel"] = 1
+    
+  # Enable LKAS for market specific models
+  values["Signal1"] = 1
 
   return packer.make_can_msg("ES_Distance", 0, values)
 
@@ -64,8 +67,6 @@ def create_es_lkas(packer, es_lkas_msg, enabled, visual_alert, left_line, right_
 
   if enabled:
     values["LKAS_ACTIVE"] = 1 # Show LKAS lane lines
-    values["LKAS_Left_Line_Visible"] = 1 # Show LKAS left lane line
-    values["LKAS_Right_Line_Visible"] = 1 # Show LKAS right line
     values["LKAS_Dash_State"] = 2 # Green enabled indicator
   else:
      values["LKAS_Dash_State"] = 0 # LKAS Not enabled
@@ -73,6 +74,12 @@ def create_es_lkas(packer, es_lkas_msg, enabled, visual_alert, left_line, right_
   values["LKAS_Left_Line_Visible"] = int(left_line)
   values["LKAS_Right_Line_Visible"] = int(right_line)
 
+  # Enable LKAS for market specific models
+  values["LKAS_Enable_1"] = 0
+  values["LKAS_Enable_2"] = 3
+  values["LKAS_Left_Line_Enable"] = 1
+  values["LKAS_Right_Line_Enable"] = 1
+  
   return packer.make_can_msg("ES_LKAS_State", 0, values)
 
 def create_es_dashstatus(packer, dashstatus_msg):
