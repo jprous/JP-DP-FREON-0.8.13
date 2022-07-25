@@ -73,7 +73,7 @@ def create_es_lkas(packer, es_lkas_msg, enabled, visual_alert, left_line, right_
   else:
      values["LKAS_Dash_State"] = 0 # LKAS Not enabled
      values["LKAS_Left_Line_Enable"] = 0
-    values["LKAS_Right_Line_Enable"] = 0
+     values["LKAS_Right_Line_Enable"] = 0
 
   values["LKAS_Left_Line_Visible"] = int(left_line)
   values["LKAS_Right_Line_Visible"] = int(right_line)
