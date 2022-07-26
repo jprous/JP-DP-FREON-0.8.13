@@ -27,7 +27,7 @@ def create_es_distance(packer, es_distance_msg, pcm_cancel_cmd):
 
   return packer.make_can_msg("ES_Distance", 0, values)
 
-def create_es_lkas(packer, es_lkas_msg, enabled, visual_alert, left_line, right_line, left_lane_depart, right_lane_depart):
+def create_es_lkas(sng_acc_resume, packer, es_lkas_msg, enabled, visual_alert, left_line, right_line, left_lane_depart, right_lane_depart):
 
   values = copy.copy(es_lkas_msg)
 
@@ -64,20 +64,18 @@ def create_es_lkas(packer, es_lkas_msg, enabled, visual_alert, left_line, right_
 
   if enabled:
     values["LKAS_ACTIVE"] = 1 # Show LKAS lane lines
-    values["LKAS_Left_Line_Visible"] = 1 # Show LKAS left lane line
-    values["LKAS_Right_Line_Visible"] = 1 # Show LKAS right line
     values["LKAS_Dash_State"] = 2 # Green enabled indicator
+    if sng_acc_resume:
+      values["LKAS_Left_Line_Enable"] = 0 # Show LKAS left lane line
+      values["LKAS_Right_Line_Enable"] = 0 # Show LKAS right line
+    else:
+      values["LKAS_Left_Line_Enable"] = 1 # Show LKAS left lane line
+      values["LKAS_Right_Line_Enable"] = 1 # Show LKAS right line
   else:
      values["LKAS_Dash_State"] = 0 # LKAS Not enabled
-<<<<<<< HEAD
-<<<<<<< HEAD
-=======
-     values["LKAS_Left_Line_Enable"] = 0
-    values["LKAS_Right_Line_Enable"] = 0
->>>>>>> parent of a2243b1a (Add ES_Status_2 - thanks MartinL)
-=======
->>>>>>> parent of 6e060252 (Add ES_Status_2 - thanks MartinL)
-
+     values["LKAS_Left_Line_Enable"] = 0 # Disable LKAS left lane line
+     values["LKAS_Right_Line_Enable"] = 0 # Disable LKAS right line
+      
   values["LKAS_Left_Line_Visible"] = int(left_line)
   values["LKAS_Right_Line_Visible"] = int(right_line)
 
