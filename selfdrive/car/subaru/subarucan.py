@@ -70,14 +70,26 @@ def create_es_lkas(packer, es_lkas_msg, enabled, visual_alert, left_line, right_
   else:
      values["LKAS_Dash_State"] = 0 # LKAS Not enabled
 <<<<<<< HEAD
+<<<<<<< HEAD
 =======
      values["LKAS_Left_Line_Enable"] = 0
     values["LKAS_Right_Line_Enable"] = 0
 >>>>>>> parent of a2243b1a (Add ES_Status_2 - thanks MartinL)
+=======
+>>>>>>> parent of 6e060252 (Add ES_Status_2 - thanks MartinL)
 
   values["LKAS_Left_Line_Visible"] = int(left_line)
   values["LKAS_Right_Line_Visible"] = int(right_line)
 
+<<<<<<< HEAD
+=======
+  # Enable LKAS for market specific models
+  values["LKAS_Enable_1"] = 0
+  values["LKAS_Enable_2"] = 3
+  values["LKAS_Left_Line_Enable"] = 1
+  values["LKAS_Right_Line_Enable"] = 1
+  
+>>>>>>> parent of 6e060252 (Add ES_Status_2 - thanks MartinL)
   return packer.make_can_msg("ES_LKAS_State", 0, values)
 
 def create_es_dashstatus(packer, dashstatus_msg):
