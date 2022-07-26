@@ -271,11 +271,11 @@ static int subaru_fwd_hook(int bus_num, CANPacket_t *to_fwd) {
   int addr = GET_ADDR(to_fwd);
 
   if (bus_num == 0) {
-    bus_fwd = 2;  // Camera CAN
+    //bus_fwd = 2;  // Camera CAN
     // Global platform
     // 0x40 Throttle
     // 0x139 Brake_Pedal
-    int block_msg = (addr == 0x40);
+    int block_msg = ((addr == 0x40) || (addr == 0x139));
     if (!block_msg) {
       bus_fwd = 2;  // Camera CAN
     }
@@ -294,7 +294,7 @@ static int subaru_fwd_hook(int bus_num, CANPacket_t *to_fwd) {
       bus_fwd = 0;  // Main CAN
     }
   }
-
+  // fallback to do not forward
   return bus_fwd;
 }
 
@@ -303,7 +303,7 @@ static int subaru_legacy_fwd_hook(int bus_num, CANPacket_t *to_fwd) {
   int addr = GET_ADDR(to_fwd);
 
   if (bus_num == 0) {
-    bus_fwd = 2;  // Camera CAN
+    //bus_fwd = 2;  // Camera CAN
     // Preglobal platform
     // 0x140 is Throttle
     int block_msg = (addr == 0x140);
