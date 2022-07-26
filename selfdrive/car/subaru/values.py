@@ -14,6 +14,8 @@ class CarControllerParams:
     self.STEER_DRIVER_ALLOWANCE = 60   # allowed driver torque before start limiting
     self.STEER_DRIVER_MULTIPLIER = 10  # weight driver torque heavily
     self.STEER_DRIVER_FACTOR = 1       # from dbc
+    self.ACC_MIN_DIST = 3              # stop and go min distance threshold
+    self.ACC_MAX_DIST = 4.5            # stop and go max distance threshold
 
 class CAR:
   ASCENT = "SUBARU ASCENT LIMITED 2019"
