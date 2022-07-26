@@ -14,7 +14,6 @@ class CarController():
     self.apply_steer_last = 0
     self.es_distance_cnt = -1
     self.es_lkas_cnt = -1
-    self.es_status_2_cnt = -1
     self.es_dashstatus_cnt = -1
     self.throttle_cnt = -1
     self.brake_pedal_cnt = -1                                                 
@@ -141,10 +140,6 @@ class CarController():
       if self.throttle_cnt != CS.throttle_msg["Counter"]:
         can_sends.append(subarucan.create_throttle(self.packer, CS.throttle_msg, throttle_cmd))
         self.throttle_cnt = CS.throttle_msg["Counter"]
-        
-      if self.es_status_2_cnt != CS.es_status_2_msg["Counter"]:
-         can_sends.append(subarucan.create_es_status_2(self.packer, CS.es_status_2_msg))
-         self.es_status_2_cnt = CS.es_status_2_msg["Counter"]
 
     new_actuators = actuators.copy()
     new_actuators.steer = self.apply_steer_last / self.p.STEER_MAX

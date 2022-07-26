@@ -12,7 +12,7 @@ const int SUBARU_STANDSTILL_THRSLD = 20;  // about 1kph
 const int SUBARU_L_DRIVER_TORQUE_ALLOWANCE = 75;
 const int SUBARU_L_DRIVER_TORQUE_FACTOR = 10;
 
-const CanMsg SUBARU_TX_MSGS[] = {{0x122, 0, 8}, {0x221, 0, 8}, {0x321, 0, 8}, {0x322, 0, 8}, {0x325, 0, 8}, {0x40, 2, 8}, {0x139, 2, 8}};
+const CanMsg SUBARU_TX_MSGS[] = {{0x122, 0, 8}, {0x221, 0, 8}, {0x322, 0, 8}, {0x40, 2, 8}};
 #define SUBARU_TX_MSGS_LEN (sizeof(SUBARU_TX_MSGS) / sizeof(SUBARU_TX_MSGS[0]))
 
 AddrCheckStruct subaru_addr_checks[] = {
@@ -285,11 +285,9 @@ static int subaru_fwd_hook(int bus_num, CANPacket_t *to_fwd) {
     // Global platform
     // 0x122 ES_LKAS
     // 0x221 ES_Distance
-    // 0x321 ES_DashStatus
     // 0x322 ES_LKAS_State
-    // 0x325 ES_Status_2
     //int addr = GET_ADDR(to_fwd);
-    int block_msg = ((addr == 0x122) || (addr == 0x221) || (addr == 0x321) || (addr == 0x322) || (addr == 0x325));
+    int block_msg = ((addr == 0x122) || (addr == 0x221) || (addr == 0x322));
     if (!block_msg) {
       bus_fwd = 0;  // Main CAN
     }
