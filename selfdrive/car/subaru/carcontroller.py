@@ -85,8 +85,8 @@ class CarController():
         and CS.car_follow == 1                             # lead car
         and CS.cruise_state == 3                           # ACC HOLD (only with EPB)
         and CS.out.standstill                              # must be standing still
-        and CS.close_distance > 3                          # acc resume min trigger threshold (m)
-        and CS.close_distance < 4.5                        # acc resume max trigger threshold (m)
+        and CS.close_distance > self.p.ACC_MIN_DIST        # acc resume min trigger threshold (m)
+        and CS.close_distance < self.p.ACC_MAX_DIST        # acc resume max trigger threshold (m)
         and CS.close_distance > self.prev_close_distance): # distance with lead car is increasing
       self.sng_acc_resume = True
     self.prev_cruise_state = CS.cruise_state
@@ -134,7 +134,7 @@ class CarController():
         self.es_distance_cnt = CS.es_distance_msg["Counter"]
 
       if self.es_lkas_cnt != CS.es_lkas_msg["Counter"]:
-        can_sends.append(subarucan.create_es_lkas(self.packer, CS.es_lkas_msg, enabled, visual_alert, left_line, right_line, left_lane_depart, right_lane_depart))
+        can_sends.append(subarucan.create_es_lkas(elf.sng_acc_resume, self.packer, CS.es_lkas_msg, enabled, visual_alert, left_line, right_line, left_lane_depart, right_lane_depart))
         self.es_lkas_cnt = CS.es_lkas_msg["Counter"]
         
       if self.throttle_cnt != CS.throttle_msg["Counter"]:
