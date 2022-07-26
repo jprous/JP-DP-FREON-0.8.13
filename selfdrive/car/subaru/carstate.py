@@ -58,10 +58,7 @@ class CarState(CarStateBase):
       ret.cruiseState.speed *= CV.MPH_TO_KPH
 
     ret.seatbeltUnlatched = cp.vl["Dashlights"]["SEATBELT_FL"] == 1
-    ret.doorOpen = any([cp.vl["BodyInfo"]["DOOR_OPEN_RR"],
-                        cp.vl["BodyInfo"]["DOOR_OPEN_RL"],
-                        cp.vl["BodyInfo"]["DOOR_OPEN_FR"],
-                        cp.vl["BodyInfo"]["DOOR_OPEN_FL"]])
+    
     ret.steerError = cp.vl["Steering_Torque"]["Steer_Error_1"] == 1
 
     if self.car_fingerprint in PREGLOBAL_CARS:
@@ -103,10 +100,6 @@ class CarState(CarStateBase):
       ("FR", "Wheel_Speeds"),
       ("RL", "Wheel_Speeds"),
       ("RR", "Wheel_Speeds"),
-      ("DOOR_OPEN_FR", "BodyInfo"),
-      ("DOOR_OPEN_FL", "BodyInfo"),
-      ("DOOR_OPEN_RR", "BodyInfo"),
-      ("DOOR_OPEN_RL", "BodyInfo"),
       ("Gear", "Transmission"),
     ]
 
@@ -118,7 +111,6 @@ class CarState(CarStateBase):
       ("Wheel_Speeds", 50),
       ("Transmission", 100),
       ("Steering_Torque", 50),
-      ("BodyInfo", 1),
     ]
 
     if CP.enableBsm:
@@ -148,7 +140,6 @@ class CarState(CarStateBase):
 
       checks += [
         ("Dashlights", 10),
-        ("BodyInfo", 10),
         ("Brake_Status", 50),
         ("CruiseControl", 20),
       ]
@@ -171,7 +162,6 @@ class CarState(CarStateBase):
         ("Brake_Pedal", "Brake_Pedal"),
       ]
 
-      checks.append(("BodyInfo", 1))
       checks.append(("Dash_State2", 1))
       checks.append(("Brake_Pedal", 50))
       checks.append(("CruiseControl", 50))
