@@ -247,6 +247,7 @@ class CarState(CarStateBase):
         ("Signal1", "ES_LKAS_State"),
         ("LKAS_ACTIVE", "ES_LKAS_State"),
         ("LKAS_Dash_State", "ES_LKAS_State"),
+        ("LKAS_Enable_2", "ES_LKAS_State", 0),
         ("Signal2", "ES_LKAS_State"),
         ("Backward_Speed_Limit_Menu", "ES_LKAS_State"),
         ("LKAS_Left_Line_Enable", "ES_LKAS_State"),

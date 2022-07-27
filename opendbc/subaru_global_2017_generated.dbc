@@ -219,6 +219,7 @@ BO_ 802 ES_LKAS_State: 8 XXX
  SG_ Signal1 : 15|2@1+ (1,0) [0|3] "" XXX
  SG_ LKAS_ACTIVE : 17|1@1+ (1,0) [0|1] "" XXX
  SG_ LKAS_Dash_State : 18|2@1+ (1,0) [0|2] "" XXX
+ SG_ LKAS_Enable_2 : 56|2@1+ (1,0) [0|2] "" XXX
  SG_ Signal2 : 20|3@1+ (1,0) [0|7] "" XXX
  SG_ Backward_Speed_Limit_Menu : 23|1@1+ (1,0) [0|1] "" XXX
  SG_ LKAS_Left_Line_Enable : 24|1@1+ (1,0) [0|1] "" XXX
