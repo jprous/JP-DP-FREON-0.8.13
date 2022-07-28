@@ -229,7 +229,6 @@ BO_ 802 ES_LKAS_State: 8 XXX
  SG_ LKAS_Right_Line_Visible : 30|2@1+ (1,0) [0|3] "" XXX
  SG_ LKAS_Alert : 32|5@1+ (1,0) [0|31] "" XXX
  SG_ Signal3 : 37|27@1+ (1,0) [0|1] "" XXX
- SG_ LKAS_Enable_1 : 45|1@1+ (1,0) [0|1] "" XXX
 
 BO_ 722 AC_State: 8 XXX
  SG_ CHECKSUM : 0|8@1+ (1,0) [0|255] "" XXX
