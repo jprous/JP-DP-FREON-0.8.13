@@ -67,14 +67,14 @@ class CarState(CarStateBase):
     else:
       ret.steerWarning = cp.vl["Steering_Torque"]["Steer_Warning"] == 1
       ret.cruiseState.nonAdaptive = cp_cam.vl["ES_DashStatus"]["Conventional_Cruise"] == 1
-      self.brake_pedal_msg = copy.copy(cp.vl["Brake_Pedal"])
+      # JP to add self.brake_pedal_msg = copy.copy(cp.vl["Brake_Pedal"])
       self.es_lkas_msg = copy.copy(cp_cam.vl["ES_LKAS_State"])
       self.cruise_state = cp_cam.vl["ES_DashStatus"]["Cruise_State"]
     self.car_follow = cp_cam.vl["ES_Distance"]["Car_Follow"]
     self.close_distance = cp_cam.vl["ES_Distance"]["Close_Distance"]
     self.throttle_msg = copy.copy(cp.vl["Throttle"])
     self.es_distance_msg = copy.copy(cp_cam.vl["ES_Distance"])
-    self.es_dashstatus_msg = copy.copy(cp_cam.vl["ES_DashStatus"])
+    # JP to add self.es_dashstatus_msg = copy.copy(cp_cam.vl["ES_DashStatus"])
     self.es_status_2_msg = copy.copy(cp_cam.vl["ES_Status_2"])
     
     # dp - brake lights
@@ -213,31 +213,31 @@ class CarState(CarStateBase):
       ]
     else:
       signals = [
-        ("Counter", "ES_DashStatus", 0),
-        ("PCB_Off", "ES_DashStatus", 0),
-        ("LDW_Off", "ES_DashStatus", 0),
+        #("Counter", "ES_DashStatus", 0),
+        #("PCB_Off", "ES_DashStatus", 0),
+        #("LDW_Off", "ES_DashStatus", 0),
         ("Signal1", "ES_DashStatus", 0),
-        ("Cruise_State_Msg", "ES_DashStatus", 0),
-        ("LKAS_State_Msg", "ES_DashStatus", 0),
-        ("Signal2", "ES_DashStatus", 0),
-        ("Cruise_Soft_Disable", "ES_DashStatus", 0),
-        ("EyeSight_Status_Msg", "ES_DashStatus", 0),
-        ("Signal3", "ES_DashStatus", 0),
-        ("Cruise_Distance", "ES_DashStatus", 0),
-        ("Signal4", "ES_DashStatus", 0),
+        #("Cruise_State_Msg", "ES_DashStatus", 0),
+        #("LKAS_State_Msg", "ES_DashStatus", 0),
+        #("Signal2", "ES_DashStatus", 0),
+        #("Cruise_Soft_Disable", "ES_DashStatus", 0),
+        #("EyeSight_Status_Msg", "ES_DashStatus", 0),
+        #("Signal3", "ES_DashStatus", 0),
+        #("Cruise_Distance", "ES_DashStatus", 0),
+        #("Signal4", "ES_DashStatus", 0),
         ("Conventional_Cruise", "ES_DashStatus", 0),
-        ("Signal5", "ES_DashStatus", 0),
-        ("Cruise_Disengaged", "ES_DashStatus", 0),
-        ("Cruise_Activated", "ES_DashStatus", 0),
-        ("Signal6", "ES_DashStatus", 0),
+        #("Signal5", "ES_DashStatus", 0),
+        #("Cruise_Disengaged", "ES_DashStatus", 0),
+        #("Cruise_Activated", "ES_DashStatus", 0),
+        #("Signal6", "ES_DashStatus", 0),
         ("Cruise_Set_Speed", "ES_DashStatus", 0),
-        ("Cruise_Fault", "ES_DashStatus", 0),
-        ("Cruise_On", "ES_DashStatus", 0),
-        ("Display_Own_Car", "ES_DashStatus", 0),
-        ("Brake_Lights", "ES_DashStatus", 0),
-        ("Car_Follow", "ES_DashStatus", 0),
-        ("Signal7", "ES_DashStatus", 0),
-        ("Far_Distance", "ES_DashStatus", 0),
+        #("Cruise_Fault", "ES_DashStatus", 0),
+        #("Cruise_On", "ES_DashStatus", 0),
+        #("Display_Own_Car", "ES_DashStatus", 0),
+        #("Brake_Lights", "ES_DashStatus", 0),
+        #("Car_Follow", "ES_DashStatus", 0),
+        #("Signal7", "ES_DashStatus", 0),
+        #("Far_Distance", "ES_DashStatus", 0),
         ("Cruise_State", "ES_DashStatus", 0),
 
         ("Counter", "ES_Distance"),
