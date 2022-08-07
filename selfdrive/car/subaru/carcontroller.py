@@ -84,13 +84,10 @@ class CarController():
     cspeed_dn_cmd = False
     cspeed_up_cmd = False
     
-    new_cspeed = 0
+    new_cspeed = 0    #set the desired speed here to test
     
     if ((CS.cruise_state == 0) and (c.enabled) and (new_cspeed !=0) and (CS.out.cruiseState.enabled > 0)):
       if (self.speed_check_cnt > 200):
- 
-        #new_cspeed = (int((hud_speed * CV.MS_TO_KPH) / 5)) * 5
-        #CS.cruiseState.speed * CV.MS_TO_KPH
       
         #Check down first - but to a miminum of 30 kph
         if ((new_cspeed > 29) and (new_cspeed < CS.out.cruiseState.speed * CV.MS_TO_KPH)):
