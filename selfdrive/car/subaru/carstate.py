@@ -76,6 +76,7 @@ class CarState(CarStateBase):
     self.es_distance_msg = copy.copy(cp_cam.vl["ES_Distance"])
     # JP to add self.es_dashstatus_msg = copy.copy(cp_cam.vl["ES_DashStatus"])
     self.es_status_2_msg = copy.copy(cp_cam.vl["ES_Status_2"])
+    self.sw_cruise_buttons_msg = copy.copy(cp.vl["Cruise_Buttons"]) 
     
     # dp - brake lights
     ret.brakeLights = ret.brakePressed
@@ -101,6 +102,13 @@ class CarState(CarStateBase):
       ("RL", "Wheel_Speeds"),
       ("RR", "Wheel_Speeds"),
       ("Gear", "Transmission"),
+      
+      ("Counter","Cruise_Buttons"),
+      ("Signal1","Cruise_Buttons"),
+      ("Main","Cruise_Buttons"),
+      ("Set","Cruise_Buttons"),
+      ("Resume","Cruise_Buttons"),
+      ("Signal2","Cruise_Buttons"), 
     ]
 
     checks = [
@@ -111,6 +119,7 @@ class CarState(CarStateBase):
       ("Wheel_Speeds", 50),
       ("Transmission", 100),
       ("Steering_Torque", 50),
+      ("Cruise_Buttons", 20),
     ]
 
     if CP.enableBsm:
