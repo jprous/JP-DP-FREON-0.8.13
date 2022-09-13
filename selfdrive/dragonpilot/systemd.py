@@ -47,7 +47,7 @@ HERTZ = 1
 last_modified_confs = {}
 
 def confd_thread():
-  sm = messaging.SubMaster(['deviceState'])
+  sm = messaging.SubMaster(['deviceState', 'liveMapData'])  #, 'longitudinalPlan'
   pm = messaging.PubMaster(['dragonConf'])
 
   last_dp_msg = None
@@ -63,6 +63,7 @@ def confd_thread():
   is_eon = EON
   rk = Ratekeeper(HERTZ, print_delay_threshold=None)  # Keeps rate at 2 hz
   uploader_thread = None
+  spd_init = False
 
   while True:
     if uploader_thread is None:
@@ -158,6 +159,19 @@ def confd_thread():
     '''
     if msg.dragonConf.dpDashcamd and frame % HERTZ == 0:
       dashcamd.run(started, free_space)
+    
+    '''
+    ===================================================
+    update speed limit every second
+    ===================================================
+    '''
+    if frame % (HERTZ * 1) == 0:
+      if not spd_init:
+        setattr(msg.dragonConf, get_struct_name('dp_speed_limit'), 0)
+        setattr(msg.dragonConf, get_struct_name('dp_turn_speed_limit'), 0)
+        spd_init = True
+      else:      
+        msg = update_spd_lim(msg, sm)
     '''
     ===================================================
     finalise
@@ -242,6 +256,25 @@ def update_ip(msg):
   setattr(msg.dragonConf, get_struct_name('dp_ip_addr'), IP)
   return msg
 
+
+def update_spd_lim(msg, sm):
+  spd_lim = 0
+  t_spd_lim = 0
+  map_data = sm['liveMapData']
+  #long_plan = sm['longitudinalPlan']
+  try:
+    # try and set the speed limit
+    spd_lim = map_data.speedLimit if map_data.speedLimitValid else 0
+    t_spd_lim = map_data.turnSpeedLimit if map_data.turnSpeedLimitValid else 0
+    #spd_lim = long_plan.speedLimit #if long_plan.speedLimitControlState else 0
+    #t_spd_lim = long_plan.turnSpeed #if long_plan.speedLimitControlState else 0
+  except:
+    spd_lim = 0
+    t_spd_lim = 0
+
+  setattr(msg.dragonConf, get_struct_name('dp_speed_limit'), spd_lim)
+  setattr(msg.dragonConf, get_struct_name('dp_turn_speed_limit'), t_spd_lim)
+  return msg
 
 def set_message(msg, conf):
   val = params.get(conf['name'], encoding='utf8')
