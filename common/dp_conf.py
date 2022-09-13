@@ -17,7 +17,7 @@ confs = [
   {'name': 'dp_api_custom', 'default': False, 'type': 'Bool', 'conf_type': ['param']},
   {'name': 'dp_api_custom_url', 'default': 'https://api.commadotai.com', 'type': 'Text', 'depends': [{'name': 'dp_api_custom', 'vals': [True]}], 'conf_type': ['param']},
 
-  {'name': 'dp_atl', 'default': False, 'type': 'Bool', 'conf_type': ['param', 'struct'], 'update_once': True},
+  {'name': 'dp_atl', 'default': True, 'type': 'Bool', 'conf_type': ['param', 'struct'], 'update_once': True},
   {'name': 'dp_atl_op_long', 'default': False, 'type': 'Bool', 'depends': [{'name': 'dp_atl', 'vals': [True]}], 'conf_type': ['param', 'struct'], 'update_once': True},
   # dashcam related
   {'name': 'dp_dashcamd', 'default': False, 'type': 'Bool', 'conf_type': ['param', 'struct']},
