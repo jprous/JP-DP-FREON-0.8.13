@@ -187,9 +187,9 @@ class Controls:
     self.prof = Profiler(False)  # off by default
 
     # dp
-    #self.sm['dragonConf'].dpAtl = False
+    self.sm['dragonConf'].dpAtl = False
     #change to allow Subaru Global SnG
-    self.sm['dragonConf'].dpAtl = True
+    #self.sm['dragonConf'].dpAtl = True
     self.sm['dragonConf'].dpSrCustom = self.CP.steerRatio
     self.sm['dragonConf'].dpSrLearner = True
 
