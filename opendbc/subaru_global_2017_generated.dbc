@@ -96,11 +96,21 @@ BO_ 281 Steering_Torque: 8 XXX
  SG_ CHECKSUM : 0|8@1+ (1,0) [0|255] "" XXX
  SG_ Counter : 8|4@1+ (1,0) [0|15] "" XXX
  SG_ Steer_Error_1 : 12|1@0+ (1,0) [0|1] "" XXX
+ SG_ Signal1 : 13|1@0+ (1,0) [0|1] "" XXX
  SG_ Steer_Torque_Sensor : 16|11@1- (-1,0) [-1000|1000] "" XXX
  SG_ Steer_Error_2 : 28|1@1+ (1,0) [0|1] "" XXX
  SG_ Steer_Warning : 29|1@1+ (1,0) [0|1] "" XXX
  SG_ Steering_Angle : 32|16@1- (-0.0217,0) [-600|600] "" X
  SG_ Steer_Torque_Output : 48|11@1- (-1,0) [-1000|1000] "" XXX
+ 
+BO_ 282 ES_STEER_JP: 8 XXX
+ SG_ CHECKSUM : 0|8@1+ (1,0) [0|255] "" XXX
+ SG_ Counter : 8|4@1+ (1,0) [0|15] "" XXX
+ SG_ BLANK_SIGNAL : 12|4@1+ (1,0) [0|1] "" XXX
+ SG_ NEW_SIGNAL_1 : 16|8@1+ (1,0) [0|1] "" XXX
+ SG_ STEER_ANGLE : 24|6@1- (1,0) [0|1] "" XXX
+ SG_ STEER_STEP : 30|11@1- (1,0) [0|1] "" XXX
+ SG_ STEER_OUTPUT : 41|23@1- (1,0) [0|1] "" XXX
 
 BO_ 312 Brake_Pressure_L_R: 8 XXX
  SG_ CHECKSUM : 0|8@1+ (1,0) [0|255] "" XXX
@@ -122,12 +132,14 @@ BO_ 313 Brake_Pedal: 8 XXX
 BO_ 372 Engine_Stop_Start: 8 XXX
   SG_ CHECKSUM : 0|8@1+ (1,0) [0|255] "" XXX
   SG_ Counter : 8|4@1+ (1,0) [0|15] "" XXX
+  SG_ SIG_1 : 19|1@0+ (1,0) [0|1] "" XXX
   SG_ STOP_START_STATE : 39|2@0+ (1,0) [0|3] "" XXX
 
 BO_ 290 ES_LKAS: 8 XXX
  SG_ CHECKSUM : 0|8@1+ (1,0) [0|255] "" XXX
  SG_ Counter : 8|4@1+ (1,0) [0|15] "" XXX
  SG_ SET_1 : 12|1@0+ (1,0) [0|1] "" XXX
+ SG_ SET_2 : 13|1@0+ (1,0) [0|1] "" XXX
  SG_ LKAS_Output : 16|13@1- (-1,0) [-8191|8191] "" XXX
  SG_ LKAS_Request : 29|1@0+ (1,0) [0|1] "" XXX
 
@@ -230,26 +242,45 @@ BO_ 802 ES_LKAS_State: 8 XXX
  SG_ LKAS_Alert : 32|5@1+ (1,0) [0|31] "" XXX
  SG_ Signal3 : 37|8@1+ (1,0) [0|1] "" XXX
  SG_ LKAS_Enable_1 : 45|1@1+ (1,0) [0|1] "" XXX
- SG_ Signal4 : 46|10@1+ (1,0) [0|1] "" XXX
- SG_ LKAS_Enable_2 : 56|2@1+ (1,0) [0|1] "" XXX
+ SG_ NEW_SIGNAL_1 : 46|4@1+ (1,0) [0|1] "" XXX
+ SG_ LANE_CENTRE_SET : 50|1@1+ (1,0) [0|1] "" XXX
+ SG_ LEFT_RIGHT_SET : 51|1@1+ (1,0) [0|1] "" XXX
+ SG_ NEW_SIGNAL_2 : 52|3@1+ (1,0) [0|1] "" XXX
+ SG_ LKAS_SET : 55|1@1+ (1,0) [0|1] "" XXX
+ SG_ ACC_ACEL_CHAR : 56|2@1+ (1,0) [0|1] "" XXX
  SG_ Signal5 : 58|6@1+ (1,0) [0|1] "" XXX
+ 
+BO_ 803 ES_LANE_CENTER: 8 XXX
+ SG_ CHECKSUM : 0|8@1+ (1,0) [0|1] "" XXX
+ SG_ Counter : 8|4@1+ (1,0) [0|1] "" XXX
+ SG_ Dash_Display : 12|4@1+ (1,0) [0|1] "" XXX
+ SG_ Signal2 : 16|4@1+ (1,0) [0|1] "" XXX
+ SG_ Signal3 : 20|4@1+ (1,0) [0|1] "" XXX
  
 BO_ 805 ES_Status_2: 8 XXX
  SG_ CHECKSUM : 0|8@1+ (1,0) [0|1] "" XXX
  SG_ Counter : 8|4@1+ (1,0) [0|1] "" XXX
  SG_ Signal1 : 12|4@1+ (1,0) [0|1] "" XXX
- SG_ Signal2 : 22|2@1+ (1,0) [0|1] "" XXX
+ SG_ Signal2 : 16|4@1+ (1,0) [0|1] "" XXX
+ SG_ Signal3 : 20|4@1+ (1,0) [0|1] "" XXX
 
 BO_ 722 AC_State: 8 XXX
  SG_ CHECKSUM : 0|8@1+ (1,0) [0|255] "" XXX
  SG_ Counter : 8|4@1+ (1,0) [0|15] "" XXX
  SG_ AC_Mode : 37|3@1+ (1,0) [0|1] "" XXX
  SG_ AC_ON : 24|2@1+ (1,0) [0|1] "" XXX
+ 
+BO_ 826 NEW_TST_2: 8 XXX
+ SG_ CHECKSUM : 0|8@1+ (1,0) [0|255] "" XXX
+ SG_ Counter : 8|4@1+ (1,0) [0|15] "" XXX
+ SG_ NEW_SIGNAL_1 : 24|8@1+ (1,0) [0|255] "" XXX
+
 
 BO_ 1677 Dash_State: 8 XXX
  SG_ CHECKSUM : 0|8@1+ (1,0) [0|255] "" XXX
  SG_ Counter : 8|4@1+ (1,0) [0|15] "" XXX
  SG_ Units : 29|3@1+ (1,0) [0|7] "" XXX
+ 
 
 CM_ SG_ 64 Throttle_Combo "Throttle Cruise + Pedal";
 CM_ SG_ 313 Brake_Lights "Driver or Cruise Brake on";
