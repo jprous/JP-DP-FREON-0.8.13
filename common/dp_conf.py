@@ -15,7 +15,7 @@ from selfdrive.hardware import EON, TICI
 confs = [
   # custom api server
   {'name': 'dp_api_custom', 'default': False, 'type': 'Bool', 'conf_type': ['param']},
-  {'name': 'dp_api_custom_url', 'default': 'https://api.retropilot.org', 'type': 'Text', 'depends': [{'name': 'dp_api_custom', 'vals': [True]}], 'conf_type': ['param']},
+  {'name': 'dp_api_custom_url', 'default': 'https://api.commadotai.com', 'type': 'Text', 'depends': [{'name': 'dp_api_custom', 'vals': [True]}], 'conf_type': ['param']},
 
   {'name': 'dp_atl', 'default': False, 'type': 'Bool', 'conf_type': ['param', 'struct'], 'update_once': True},
   {'name': 'dp_atl_op_long', 'default': False, 'type': 'Bool', 'depends': [{'name': 'dp_atl', 'vals': [True]}], 'conf_type': ['param', 'struct'], 'update_once': True},
@@ -123,6 +123,10 @@ confs = [
   {'name': 'dp_nav_style_night', 'default': 'mapbox://styles/rav4kumar/ckvsf3f4u0zb414tcz9vof5jc', 'type': 'Text', 'conf_type': ['param']},
   {'name': 'dp_no_offroad_fix', 'default': False, 'type': 'Bool', 'conf_type': ['param']},
   {'name': 'dp_ftpd', 'default': False, 'type': 'Bool', 'conf_type': ['param']},
+  
+  #JP added for speed limits
+  {'name': 'dp_speed_limit', 'default': 20, 'type': 'Float32', 'conf_type': ['struct']},
+  {'name': 'dp_turn_speed_limit', 'default': 25, 'type': 'Float32', 'conf_type': ['struct']},
 ]
 
 # from 0.8.9 to 0.8.10
