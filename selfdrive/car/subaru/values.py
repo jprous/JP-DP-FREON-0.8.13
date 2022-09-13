@@ -7,13 +7,13 @@ class CarControllerParams:
     if CP.carFingerprint == CAR.IMPREZA_2020:
       self.STEER_MAX = 1439
     else:
-      self.STEER_MAX = 2047
-    self.STEER_STEP = 2                # how often we update the steer cmd
-    self.STEER_DELTA_UP = 50           # torque increase per refresh, 0.8s to max
-    self.STEER_DELTA_DOWN = 70         # torque decrease per refresh
-    self.STEER_DRIVER_ALLOWANCE = 60   # allowed driver torque before start limiting
-    self.STEER_DRIVER_MULTIPLIER = 10  # weight driver torque heavily
-    self.STEER_DRIVER_FACTOR = 1       # from dbc
+      self.STEER_MAX = 3071            # 2047 self steer max                                #JP best set 3071
+    self.STEER_STEP = 2                # 2 how often we update the steer cmd
+    self.STEER_DELTA_UP = 70           # 50 torque increase per refresh, 0.8s to max        #JP best set 150
+    self.STEER_DELTA_DOWN = 70         # 70 torque decrease per refresh                     #JP best set 170
+    self.STEER_DRIVER_ALLOWANCE = 100   # 60 allowed driver torque before start limiting     #JP best set 160
+    self.STEER_DRIVER_MULTIPLIER = 10  # 10 weight driver torque heavily                    #JP best set 15
+    self.STEER_DRIVER_FACTOR = 1       # 1 from dbc                                         #JP best set 1 
     self.ACC_MIN_DIST = 2.5              # stop and go min distance threshold
     self.ACC_MAX_DIST = 5.5              # stop and go max distance threshold
 

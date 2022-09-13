@@ -15,12 +15,17 @@ class CarController():
     self.apply_steer_last = 0
     self.es_distance_cnt = -1
     self.es_lkas_cnt = -1
+    self.es_lanecenter_cnt = -1
     self.es_status_2_cnt = -1
+    self.es_new_tst_2_cnt = -1
+    self.es_lkas_steer_cnt = -1
+    self.es_steerjp_cnt = -1
+    self.steering_torque_cnt = -1
+    self.dashlights_cnt = -1
     self.cruise_buttons_cnt = -1
     self.es_dashstatus_cnt = -1
     self.throttle_cnt = -1
     self.brake_pedal_cnt = -1                                                 
-    self.cruise_button_prev = 0
     self.prev_close_distance = 0
     self.prev_standstill = False
     self.standstill_start = 0                                                       
@@ -32,26 +37,50 @@ class CarController():
     self.prev_cruise_state = 0
     self.prev_close_distance = 0
     
-    self.speed_check_cnt = -1
+    self.prev_speed = 0
+    self.adjust_speed = False
     
     self.dn_button_press = False
     self.dn_button_press_cnt = -1
     
     self.up_button_press = False
     self.up_button_press_cnt = -1
+    
+    self.cruise_cancel_btn_prev = 0
+    self.lkas_mode = 1      #Modes:   1: Stock LKAS + lane centering  2:Stock LKAS + lane centering + vehicle follow 3: Stock LKAS (white lines) 4: Openpilot (green lines)
 
     self.p = CarControllerParams(CP)
     self.packer = CANPacker(DBC[CP.carFingerprint]['pt'])
 
-  def update(self, c, enabled, CS, frame, actuators, pcm_cancel_cmd, visual_alert, left_line, right_line, left_lane_depart, right_lane_depart, dragonconf):
+  def update(self, c, enabled, CS, frame, actuators, pcm_cancel_cmd, visual_alert, left_line, right_line, left_lane_depart, right_lane_depart, dragonconf): #hud_speed,
 
     can_sends = []
+
+    
+    #can_sends.append(subarucan.create_Engine_Stop_Start(self.packer, frame, self.p.STEER_STEP))
+    #can_sends.append(subarucan.create_Engine_Stop_Start2(self.packer, frame, self.p.STEER_STEP))
+
+    # *** Set the LKAS mode ***
+    if ((CS.cruise_cancel_btn == 0) and (self.cruise_cancel_btn_prev == 1)):
+      # increase the mode count
+      self.lkas_mode += 1
+      if (self.lkas_mode == 5):
+        self.lkas_mode = 1
+        
+    self.cruise_cancel_btn_prev = CS.cruise_cancel_btn
+    
+    if not (self.lkas_mode == 4):
+      CS.steerout = self.lkas_mode  #Just to test
 
     # *** steering ***
     if (frame % self.p.STEER_STEP) == 0:
 
       apply_steer = int(round(actuators.steer * self.p.STEER_MAX))
+      #  **** JP test ****  apply_steer = 0
 
+      #up steering with speed
+      # apply_steer = apply_steer * (1.3-(CS.out.vEgo * CV.MS_TO_KPH) * 0.005)
+      
       # limits due to driver torque
 
       new_steer = int(round(apply_steer))
@@ -73,52 +102,93 @@ class CarController():
                                            apply_steer, CS.out.vEgo)
       self.last_blinker_on = blinker_on
 
-      if CS.CP.carFingerprint in PREGLOBAL_CARS:
-        can_sends.append(subarucan.create_preglobal_steering_control(self.packer, apply_steer, frame, self.p.STEER_STEP))
-      else:
-        can_sends.append(subarucan.create_steering_control(self.packer, apply_steer, frame, self.p.STEER_STEP))
+      if (self.lkas_mode == 4):
+        if CS.CP.carFingerprint in PREGLOBAL_CARS:
+          can_sends.append(subarucan.create_preglobal_steering_control(self.packer, apply_steer, frame, self.p.STEER_STEP))
+        else:
+          can_sends.append(subarucan.create_steering_control(self.packer, apply_steer, frame, self.p.STEER_STEP)) #  **** JP test ****  
+          #can_sends.append(subarucan.create_steering_control2(self.packer, apply_steer, frame, self.p.STEER_STEP)) #  **** JP test ****  
+        
+        if not (abs(apply_steer) == 0):
+          CS.steerout = abs(apply_steer)
+        else:
+          CS.steerout = self.lkas_mode
 
       self.apply_steer_last = apply_steer
-
-    # *** speed control - check once per second ***
+      
+    
+    # *** speed control - check once per 2 seconds - km/h***
     cspeed_dn_cmd = False
     cspeed_up_cmd = False
     
-    new_cspeed = 0    #set the desired speed here to test
+    if (frame % 100) == 0:
     
-    if ((CS.cruise_state == 0) and (c.enabled) and (new_cspeed !=0) and (CS.out.cruiseState.enabled > 0)):
-      if (self.speed_check_cnt > 200):
+      new_speedlim = (int(((dragonconf.dpSpeedLimit * CV.MS_TO_KPH) + 2.5) / 5) * 5)
+      new_tunrlim  = (int(((dragonconf.dpTurnSpeedLimit * CV.MS_TO_KPH) + 2.5) / 5) * 5)
+      cur_setspeed = int(((CS.out.cruiseState.speed * CV.MS_TO_KPH) + 2.5) / 5) * 5
+      new_cspeed = new_speedlim
       
-        #Check down first - but to a miminum of 30 kph
-        if ((new_cspeed > 29) and (new_cspeed < CS.out.cruiseState.speed * CV.MS_TO_KPH)):
-          self.dn_button_press = True  #press the down button
+      #if speed limit is undefined, and turn limit is less than set speed limit
+      if ((new_speedlim == 0) and (new_tunrlim > 29) and (new_tunrlim < cur_setspeed)):
+        new_cspeed = new_tunrlim
+        self.adjust_speed = True
         
-        else:
-          #Check up more than 20 kph, but to a max of 131 kph
-          if ((new_cspeed < 131) and (new_cspeed > (CS.out.cruiseState.speed * CV.MS_TO_KPH))):
-            self.up_button_press = True  #press the down button
+      #if speed limit is defined, and turn limit is less than set speed limit
+      if ((new_speedlim > 29) and (new_tunrlim > 29) and (new_tunrlim < new_speedlim)):
+        new_cspeed = new_tunrlim
+        self.adjust_speed = True
         
-        self.speed_check_cnt = -1
-      else:
-        self.speed_check_cnt += 1
+      #if the speed limit is defined and the turn limit is larger
+      if ((new_speedlim > 29) and (new_tunrlim > 29) and (new_tunrlim > new_speedlim)):
+        new_cspeed = new_speedlim
+        
+      #if the speed limit is defined and the turn limit is not defined
+      if ((new_speedlim > 29) and (new_tunrlim == 0) and (new_speedlim < cur_setspeed)):
+        new_cspeed = new_speedlim
+      
+      CS.speed_limit = new_cspeed
+          
+      if ((CS.cruise_state == 0) and (c.enabled) and (CS.speed_limit!=0) and (CS.out.cruiseState.enabled > 0)):
+                      
+        new_cspeed = new_cspeed + 5
+        
+        if ((abs(cur_setspeed - new_cspeed) > 15) and (CS.speed_limit != 0) and (CS.speed_limit > 25)):
+          self.adjust_speed = True
+          
+        if ((cur_setspeed == new_cspeed) or (CS.speed_limit == 0)):
+          self.adjust_speed = False
+        
+        if ((cur_setspeed != new_cspeed) and (CS.speed_limit != 0) and (self.adjust_speed)):
+          
+          #Check down first - but to a miminum of 30 kph
+          if ((new_cspeed > 29) and (new_cspeed < cur_setspeed)):
+            self.dn_button_press = True  #press the down button
+            
+          else:
+            #Check up more than 20 kph, but to a max of 131 kph
+            if ((new_cspeed < 131) and (new_cspeed > (cur_setspeed + 0))):
+              self.up_button_press = True  #press the up button
 
-        #press the down button if required for 5 frames
-      if self.dn_button_press:
-        if ((self.dn_button_press_cnt < 5) and (self.up_button_press == False)):
-          cspeed_dn_cmd = True
-          self.dn_button_press_cnt += 1
-        else:
-          self.dn_button_press = False
-          self.dn_button_press_cnt = -1
+
+    # *** speed control - press the up or down buttons***
+
+    #press the down button if required for 5 frames
+    if self.dn_button_press:
+      if ((self.dn_button_press_cnt < 5) and (self.up_button_press == False)):
+        cspeed_dn_cmd = True
+        self.dn_button_press_cnt += 1
+      else:
+        self.dn_button_press = False
+        self.dn_button_press_cnt = -1
          
-         #press the up button if required for 5 frames
-      if self.up_button_press:
-        if ((self.up_button_press_cnt < 5) and (self.dn_button_press == False)):
-          cspeed_up_cmd = True
-          self.up_button_press_cnt += 1
-        else:
-          self.up_button_press = False
-          self.up_button_press_cnt = -1
+    #press the up button if required for 5 frames
+    if self.up_button_press:
+      if ((self.up_button_press_cnt < 5) and (self.dn_button_press == False)):
+        cspeed_up_cmd = True
+        self.up_button_press_cnt += 1
+      else:
+        self.up_button_press = False
+        self.up_button_press_cnt = -1
     
     
     # *** stop and go ***
@@ -140,10 +210,11 @@ class CarController():
         and CS.close_distance > self.p.ACC_MIN_DIST        # acc resume min trigger threshold (m)
         and CS.close_distance < self.p.ACC_MAX_DIST        # acc resume max trigger threshold (m)
         and CS.close_distance > self.prev_close_distance): # distance with lead car is increasing
-      self.sng_acc_resume = True
+      self.sng_acc_resume = True       #JP test
+      #self.up_button_press = True  #press the up button  #JP test
     self.prev_cruise_state = CS.cruise_state
 
-    if self.sng_acc_resume:
+    if self.sng_acc_resume:  #JP test
       if self.sng_acc_resume_cnt < 5:
         throttle_cmd = True
         self.sng_acc_resume_cnt += 1
@@ -156,7 +227,7 @@ class CarController():
       pcm_cancel_cmd = True
 
     self.prev_close_distance = CS.close_distance
-
+    
     
     # *** alerts and pcm cancel ***
 
@@ -186,20 +257,51 @@ class CarController():
         self.es_distance_cnt = CS.es_distance_msg["Counter"]
 
       if self.es_lkas_cnt != CS.es_lkas_msg["Counter"]:
-        can_sends.append(subarucan.create_es_lkas(self.sng_acc_resume, self.packer, CS.es_lkas_msg, enabled, visual_alert, left_line, right_line, left_lane_depart, right_lane_depart))
+        can_sends.append(subarucan.create_es_lkas(self.lkas_mode, self.sng_acc_resume, self.packer, CS.es_lkas_msg, enabled, visual_alert, left_line, right_line, left_lane_depart, right_lane_depart))
         self.es_lkas_cnt = CS.es_lkas_msg["Counter"]
+        
+      if self.es_dashstatus_cnt != CS.es_dashstatus_msg["Counter"]:
+        can_sends.append(subarucan.create_es_dashstatus(self.packer, CS.es_dashstatus_msg))
+        self.es_dashstatus_cnt = CS.es_dashstatus_msg["Counter"]
         
       if self.throttle_cnt != CS.throttle_msg["Counter"]:
         can_sends.append(subarucan.create_throttle(self.packer, CS.throttle_msg, throttle_cmd))
         self.throttle_cnt = CS.throttle_msg["Counter"]
         
+      if self.es_lanecenter_cnt != CS.es_lanecenter_msg["Counter"]:
+        can_sends.append(subarucan.create_es_lanecenter(self.lkas_mode, self.packer, CS.es_lanecenter_msg))
+        self.es_lanecenter_cnt = CS.es_lanecenter_msg["Counter"]   
+      
+      #*** JP test - ES_LKAS steer message forward ***  
+      #if not (self.lkas_mode == 4):
+      #  if self.es_lkas_steer_cnt != CS.es_lkas_steer_msg["Counter"]:
+      #    can_sends.append(subarucan.create_es_lkas_steer(self.packer, CS.es_lkas_steer_msg))
+      #    self.es_lkas_steer_cnt = CS.es_lkas_steer_msg["Counter"]
+      
       if self.es_status_2_cnt != CS.es_status_2_msg["Counter"]:
-         can_sends.append(subarucan.create_es_status_2(self.packer, CS.es_status_2_msg))
-         self.es_status_2_cnt = CS.es_status_2_msg["Counter"]
+        can_sends.append(subarucan.create_es_status_2(self.packer, CS.es_status_2_msg))
+        self.es_status_2_cnt = CS.es_status_2_msg["Counter"]
         
+      if self.es_new_tst_2_cnt != CS.es_new_tst_2_msg["Counter"]:
+        can_sends.append(subarucan.create_es_new_tst_2(self.packer, CS.es_new_tst_2_msg))
+        self.es_new_tst_2_cnt = CS.es_new_tst_2_msg["Counter"]
+
       if self.cruise_buttons_cnt != CS.sw_cruise_buttons_msg["Counter"]:
         can_sends.append(subarucan.create_cruise_buttons(self.packer, CS.sw_cruise_buttons_msg, cspeed_dn_cmd, cspeed_up_cmd))
         self.cruise_buttons_cnt = CS.sw_cruise_buttons_msg["Counter"]
+        
+      #*** JP test - ES_STEER_JP steer message forward ***  
+      if self.es_steerjp_cnt != CS.es_steerjp_msg["Counter"]:
+        can_sends.append(subarucan.create_es_steerjp(self.lkas_mode, CS.steerout, self.packer, CS.es_steerjp_msg))
+        self.es_steerjp_cnt = CS.es_steerjp_msg["Counter"]  
+      
+      #if self.steering_torque_cnt != CS.steering_torque_msg["Counter"]:
+      #  can_sends.append(subarucan.create_steering_torque(self.packer, CS.steering_torque_msg))
+      #  self.steering_torque_cnt = CS.steering_torque_msg["Counter"]
+      
+      #if self.dashlights_cnt != CS.dashlights_msg["Counter"]:
+      #  can_sends.append(subarucan.create_dashlights(self.packer, CS.dashlights_msg))
+      #  self.dashlights_cnt = CS.dashlights_msg["Counter"]
 
     new_actuators = actuators.copy()
     new_actuators.steer = self.apply_steer_last / self.p.STEER_MAX
