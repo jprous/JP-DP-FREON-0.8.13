@@ -48,6 +48,8 @@ struct DragonConf {
   dpSrLearner @40 :Bool;
   dpSrCustom @41 :Float32;
   dpMapd @42 :Bool;
+  dpSpeedLimit @43 :Float32;
+  dpTurnSpeedLimit @44 :Float32;
 }
 
 
