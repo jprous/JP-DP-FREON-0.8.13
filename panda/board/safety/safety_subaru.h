@@ -1,28 +1,30 @@
-const int SUBARU_MAX_STEER = 2047; // 1s
+const int SUBARU_MAX_STEER = 6000; // 1s															//default 2047, JP best value 8000
 // real time torque limit to prevent controls spamming
 // the real time limit is 1500/sec
-const int SUBARU_MAX_RT_DELTA = 940;          // max delta torque allowed for real time checks
-const uint32_t SUBARU_RT_INTERVAL = 250000;    // 250ms between real time checks
-const int SUBARU_MAX_RATE_UP = 50;
-const int SUBARU_MAX_RATE_DOWN = 70;
-const int SUBARU_DRIVER_TORQUE_ALLOWANCE = 60;
-const int SUBARU_DRIVER_TORQUE_FACTOR = 10;
-const int SUBARU_STANDSTILL_THRSLD = 20;  // about 1kph
+const int SUBARU_MAX_RT_DELTA = 940;          // max delta torque allowed for real time checks		//default 940, JP best value 1500
+const uint32_t SUBARU_RT_INTERVAL = 250000;    // 250ms between real time checks					//default 250000, JP best value 250000
+const int SUBARU_MAX_RATE_UP = 500;																	//default 50, JP best value 500
+const int SUBARU_MAX_RATE_DOWN = 500;																//default 70, JP best value 500
+const int SUBARU_DRIVER_TORQUE_ALLOWANCE = 500;														//default 60, JP best value 500
+const int SUBARU_DRIVER_TORQUE_FACTOR = 30;															//default 10, JP best value 30
+const int SUBARU_STANDSTILL_THRSLD = 20;  // about 1kph												//default 20, JP best value 20
 
 const int SUBARU_L_DRIVER_TORQUE_ALLOWANCE = 75;
 const int SUBARU_L_DRIVER_TORQUE_FACTOR = 10;
 
-const CanMsg SUBARU_TX_MSGS[] = {{0x122, 0, 8}, {0x146, 0, 8}, {0x221, 0, 8}, {0x321, 0, 8}, {0x322, 0, 8}, {0x325, 0, 8}, {0x40, 2, 8}}; //, {0x139, 2, 8}
+const CanMsg SUBARU_TX_MSGS[] = {{0x11a, 0, 8}, {0x122, 0, 8}, {0x146, 0, 8}, {0x221, 0, 8}, {0x321, 0, 8}, {0x322, 0, 8}, {0x323, 0, 8}, {0x325, 0, 8}, {0x33a, 0, 8}, {0x40, 2, 8}, {0x122, 2, 8}};  //, {0x146, 0, 8}  , {0x11a, 0, 8}, {0x174, 0, 8} , {0x390, 0, 8}
 #define SUBARU_TX_MSGS_LEN (sizeof(SUBARU_TX_MSGS) / sizeof(SUBARU_TX_MSGS[0]))
 
 AddrCheckStruct subaru_addr_checks[] = {
   {.msg = {{ 0x40, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 10000U}, { 0 }, { 0 }}},
-  {.msg = {{0x119, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 20000U}, { 0 }, { 0 }}},
+  {.msg = {{0x11a, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 20000U}, { 0 }, { 0 }}},
   {.msg = {{0x13a, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 20000U}, { 0 }, { 0 }}},
   {.msg = {{0x13c, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 20000U}, { 0 }, { 0 }}},
   {.msg = {{0x146, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 20000U}, { 0 }, { 0 }}},
   {.msg = {{0x240, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 50000U}, { 0 }, { 0 }}},
 };
+//{.msg = {{0x119, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 20000U}, { 0 }, { 0 }}},
+
 #define SUBARU_ADDR_CHECK_LEN (sizeof(subaru_addr_checks) / sizeof(subaru_addr_checks[0]))
 addr_checks subaru_rx_checks = {subaru_addr_checks, SUBARU_ADDR_CHECK_LEN};
 
@@ -97,7 +99,8 @@ static int subaru_rx_hook(CANPacket_t *to_push) {
       gas_pressed = GET_BYTE(to_push, 4) != 0U;
     }
 
-    generic_rx_checks((addr == 0x122));
+    //generic_rx_checks((addr == 0x122)); //JP test
+			
   }
   return valid;
 }
@@ -156,6 +159,7 @@ static int subaru_tx_hook(CANPacket_t *to_send) {
   }
 
   // steer cmd checks
+  
   if (addr == 0x122) {
     int desired_torque = ((GET_BYTES_04(to_send) >> 16) & 0x1FFFU);
     bool violation = 0;
@@ -204,6 +208,7 @@ static int subaru_tx_hook(CANPacket_t *to_send) {
     }
 
   }
+  
   return tx;
 }
 
@@ -272,11 +277,14 @@ static int subaru_fwd_hook(int bus_num, CANPacket_t *to_fwd) {
   int addr = GET_ADDR(to_fwd);
 
   if (bus_num == 0) {
-    //bus_fwd = 2;  // Camera CAN
+    // bus_fwd = 2;  // Camera CAN   //Check this - possible fault
     // Global platform
     // 0x40 Throttle
     // 0x139 Brake_Pedal
-    int block_msg = (addr == 0x40); // || (addr == 0x139)
+	// 0x146 Cruise_Buttons || (addr == 0x146)
+	// 0x11a ES_STEER_JP || (addr == 0x11a) 
+	// 0x174 Engine_Stop_Start   
+    int block_msg = ((addr == 0x40) || (addr == 0x11a) || (addr == 0x122));  // to forward ES_LKAS on bus 0 as well
     if (!block_msg) {
       bus_fwd = 2;  // Camera CAN
     }
@@ -284,19 +292,24 @@ static int subaru_fwd_hook(int bus_num, CANPacket_t *to_fwd) {
 
   if (bus_num == 2) {
     // Global platform
+	// 0x119 Steering_Torque
+	// 0x11a ES_STEER_JP || (addr == 0x11a) 
     // 0x122 ES_LKAS
-    // 0x146 Cruise_Buttons
+	// 0x146 Cruise_Buttons || (addr == 0x146)
+	// 0x174 Engine_Stop_Start  
     // 0x221 ES_Distance
-    // ** out for now ** 0x321 ES_DashStatus
-    // 0x322 ES_LKAS_State - No effect on dash green lights while messages are forwarded
-    // 0x325 ES_Status_2 - Filters the green lights out if messages are not forwarded
-    //int addr = GET_ADDR(to_fwd);
-    int block_msg = ((addr == 0x122) || (addr == 0x146) || (addr == 0x221)  || (addr == 0x322) || (addr == 0x325)); //|| (addr == 0x321)
+    // 0x321 ES_DashStatus
+    // 0x322 ES_LKAS_State - No effect on dash green lights
+	// 0x323 ES_Status_3 - Blue lines and blue car
+    // 0x325 ES_Status_2 - RAB
+	// 0x33a NEW_TST_2
+	// 0x390 Dashlights
+    int block_msg = ((addr == 0x11a) || (addr == 0x122) || (addr == 0x146) || (addr == 0x221) || (addr == 0x321) || (addr == 0x322) || (addr == 0x323) || (addr == 0x325) || (addr == 0x33a));
     if (!block_msg) {
       bus_fwd = 0;  // Main CAN
     }
   }
-  // fallback to do not forward
+
   return bus_fwd;
 }
 
@@ -305,7 +318,7 @@ static int subaru_legacy_fwd_hook(int bus_num, CANPacket_t *to_fwd) {
   int addr = GET_ADDR(to_fwd);
 
   if (bus_num == 0) {
-    //bus_fwd = 2;  // Camera CAN
+    bus_fwd = 2;  // Camera CAN
     // Preglobal platform
     // 0x140 is Throttle
     int block_msg = (addr == 0x140);
