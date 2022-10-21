@@ -9,7 +9,7 @@ def create_steering_control(packer, apply_steer, frame, steer_step):
 
   values = {
     "Counter": idx,
-    "LKAS_Output": apply_steer,
+    "LKAS_Output": apply_steer ,
     "LKAS_Request": 1 if apply_steer != 0 else 0,
     "SET_1": 1
     #"SET_2": 0  #US ES
@@ -95,6 +95,8 @@ def create_es_distance(packer, es_distance_msg, pcm_cancel_cmd, cspeed_dn_cmd, c
     
   if ((cspeed_up_cmd == True) and (cspeed_dn_cmd == False)):
     values["Cruise_Resume"] = 1
+    
+  #values["Signal1"] = 1     #in search of LKAS_MASTER
 
   return packer.make_can_msg("ES_Distance", 0, values)
 
@@ -134,6 +136,7 @@ def create_es_lkas(lkas_mode, sng_acc_resume, packer, es_lkas_msg, enabled, visu
     elif right_lane_depart:
       values["LKAS_Alert"] = 11 # Right lane departure dash alert
 
+  # Aus values["LKAS_ACTIVE"] = 1 from start
   #lkas_lanes = 0
   #if (lkas_mode == 4):
   #  lkas_lanes = 2
@@ -180,31 +183,31 @@ def create_es_lkas(lkas_mode, sng_acc_resume, packer, es_lkas_msg, enabled, visu
       if (lkas_mode == 3):
         values["LKAS_Left_Line_Visible"] = int(left_line)     #int(left_line)
         values["LKAS_Right_Line_Visible"] = int(right_line)      #int(right_line)
+  
+    if (lkas_mode < 3):
+      values["LKAS_Left_Line_Visible"] = 1    #int(left_line)
+      values["LKAS_Right_Line_Visible"] = 1      #int(right_line)
+  
   else:
      #values["LKAS_Dash_State"] = 0 # LKAS Not enabled  -- JP Test
-    values["LKAS_Left_Line_Enable"] = 0 # Disable LKAS left lane line
-    values["LKAS_Right_Line_Enable"] = 0 # Disable LKAS right line
-  
- 
-  #values["LKAS_Left_Line_Visible"] = lkas_lanes     #int(left_line)
-  #values["LKAS_Right_Line_Visible"] = lkas_lanes      #int(right_line)
-  
-  if (lkas_mode < 3):
-    values["LKAS_Left_Line_Visible"] = 1    #int(left_line)
-    values["LKAS_Right_Line_Visible"] = 1      #int(right_line)
+    values["LKAS_Left_Line_Enable"] = 1 # Enable LKAS left lane line
+    values["LKAS_Right_Line_Enable"] = 1 # Enable LKAS right line 
+    values["LKAS_Left_Line_Visible"] = 0     #int(left_line)
+    values["LKAS_Right_Line_Visible"] = 0      #int(right_line)
   
   # Enable LKAS for market specific models
 
   values["Signal1"] = 0    #JP Test - 7
   values["Signal2"] = 0    #JP Test
+  #values["Signal5"] = 1    #JP Test
    
   #values["LKAS_Enable_2"] = 3  #ACC Acceleration Characteristics - defuault 1 - CHECKED ACC_ACEL_CHAR
   values["Signal3"] = 128    # relates to RAB setting 128 worked - Wilderness 144 - CHECKED
   
   values["LEFT_RIGHT_SET"] = 1      #JP Test - SETTINGS: LANE_CENTRE_SET:(bt50) LEFT_RIGHT_SET:(bt51) LKAS_SET:(bt55) -> (bt53), (bt52), (bt49), (bt48), (bt47) does nothing noticeable 
   if (lkas_mode == 4):
-    values["LKAS_SET"] = 0
-    values["NEW_SIGNAL_2"] = 0
+    values["LKAS_SET"] = 1
+    #values["NEW_SIGNAL_2"] = 0
   else:
     values["LKAS_SET"] = 1
     
@@ -214,7 +217,7 @@ def create_es_lkas(lkas_mode, sng_acc_resume, packer, es_lkas_msg, enabled, visu
     values["LANE_CENTRE_SET"] = 0   
 
   if (lkas_mode == 3):
-    values["LKAS_SET"] = 0    
+    values["LKAS_SET"] = 1    
     values["LANE_CENTRE_SET"] = 0
   # *** TEST - SEARCH FOR WARNING SETTINGS ***
   #values["NEW_SIGNAL_1"] = 0
@@ -238,33 +241,36 @@ def create_es_dashstatus(packer, dashstatus_msg):
   values["Signal2"] = 0        #JP Test - try 1 here - change to 0 as Wilderness
   values["Signal5"] = 2        #JP Test - try 2 as Wilderness  
   values["Signal7"] = 0        #JP Test - try 2 as Wilderness  
+  
+  values["Signal3"] = 1        #LKAS_dash icon ON
 
   return packer.make_can_msg("ES_DashStatus", 0, values)
   
-def create_es_lanecenter(lkas_mode, packer, es_lanecenter_msg):
+def create_es_lanecenter(lkas_mode, enabled, packer, es_lanecenter_msg):
   values = copy.copy(es_lanecenter_msg)
 
   # Enable LKAS for market specific models - Blue lines and blue following car
   # Find the correct variable
-  if (lkas_mode == 4):          #4: Openpilot (green lines)
-    values["Dash_Display"] = 0  
-    values["Signal2"] = 0     #0 JP Test carefull
-    values["Signal3"] = 0     #15 JP Test carefull
+  #if (lkas_mode == 4):          #4: Openpilot (green lines)
+  values["Dash_Display"] = 0  
+  values["Signal2"] = 0     #0 JP Test carefull
+  values["Signal3"] = 0     #15 JP Test carefull
+  
+  if (enabled):  
+    if (lkas_mode == 1):          # 1: Stock LKAS + lane centering  
+      values["Dash_Display"] = 6     #7 JP Test carefull - switched off for OP test
+      values["Signal2"] = 0     #0 JP Test carefull
+      values["Signal3"] = 15     #15 JP Test carefull
     
-  if (lkas_mode == 1):          # 1: Stock LKAS + lane centering  
-    values["Dash_Display"] = 6     #7 JP Test carefull - switched off for OP test
-    values["Signal2"] = 0     #0 JP Test carefull
-    values["Signal3"] = 15     #15 JP Test carefull
+    if (lkas_mode == 2):          # 2:Stock LKAS + lane centering + vehicle follow
+      values["Dash_Display"] = 7     #7 JP Test carefull - switched off for OP test
+      values["Signal2"] = 0     #0 JP Test carefull
+      values["Signal3"] = 15     #15 JP Test carefull
     
-  if (lkas_mode == 2):          # 2:Stock LKAS + lane centering + vehicle follow
-    values["Dash_Display"] = 7     #7 JP Test carefull - switched off for OP test
-    values["Signal2"] = 0     #0 JP Test carefull
-    values["Signal3"] = 15     #15 JP Test carefull
-    
-  if (lkas_mode == 3):      # 3: Stock LKAS (white lines)
-    values["Dash_Display"] = 0     #7 JP Test carefull - switched off for OP test
-    values["Signal2"] = 0     #0 JP Test carefull
-    values["Signal3"] = 0     #15 JP Test carefull
+    #if (lkas_mode == 3):      # 3: Stock LKAS (white lines)
+    #  values["Dash_Display"] = 0     #7 JP Test carefull - switched off for OP test
+    #  values["Signal2"] = 0     #0 JP Test carefull
+    #  values["Signal3"] = 0     #15 JP Test carefull
 
   return packer.make_can_msg("ES_LANE_CENTER", 0, values)
   
@@ -279,7 +285,7 @@ def create_es_lkas_steer(packer, es_lkas_steer_msg):
 
   return packer.make_can_msg("ES_LKAS", 0, values)
   
-def create_es_steerjp(lkas_mode, apply_steer, packer, es_steerjp_msg):
+def create_es_steerjp(lkas_mode, enabled, steer_angle, apply_steer, packer, es_steerjp_msg):
   values = copy.copy(es_steerjp_msg)
 
   # Enable LKAS for market specific models
@@ -290,15 +296,19 @@ def create_es_steerjp(lkas_mode, apply_steer, packer, es_steerjp_msg):
   
   #if (lkas_mode > 2):
     #values["STEER_STEP"] = 0
-    
-  if (lkas_mode == 4):
-    values["NEW_SIGNAL_1"] = 3
-    values["STEER_STEP"] = apply_steer
-    values["STEER_OUTPUT"] = values["STEER_STEP"] * 3000    #JP alligned to Wilderness  - TO BE CHECKED
+  if (enabled):  
+    if (lkas_mode == 4):
+      values["NEW_SIGNAL_1"] = 3
+      values["STEER_ANGLE"] = steer_angle
+      values["STEER_OUTPUT"] = apply_steer * 0.1  #JP alligned to Wilderness  - TO BE CHECKED steer_angle * 0.5 * (0.075 * speed + 0.55)  
+  
+    if (lkas_mode < 3):
+      values["NEW_SIGNAL_1"] = 3     #JP alligned to Wilderness  - TO BE CHECKED
+      values["STEER_OUTPUT"] = values["STEER_ANGLE"] * 2     #JP alligned to Wilderness  - TO BE CHECKED
   
   else:
     values["NEW_SIGNAL_1"] = 3     #JP alligned to Wilderness  - TO BE CHECKED
-    values["STEER_OUTPUT"] = values["STEER_STEP"] * 4101     #JP alligned to Wilderness  - TO BE CHECKED
+    values["STEER_OUTPUT"] = values["STEER_ANGLE"] * 1     #JP alligned to Wilderness  - TO BE CHECKED
 
   packer.make_can_msg("ES_STEER_JP", 2, values)
   return packer.make_can_msg("ES_STEER_JP", 0, values)
@@ -308,9 +318,9 @@ def create_es_status_2(packer, es_status_2_msg):
 
   # Enable LKAS for market specific models RAB
   # Find the correct variable
-  values["Signal1"] = 7     #JP Test carefull
-  values["Signal2"] = 0     #JP Test carefull
-  values["Signal3"] = 12     #JP Test carefull
+  values["Signal1"] = 7     #JP Test carefull 7    Aus  12
+  values["Signal2"] = 0     #JP Test carefull  0    Aus 3
+  values["Signal3"] = 12     #JP Test carefull 12   Aus 12/14
 
   return packer.make_can_msg("ES_Status_2", 0, values)
   
@@ -322,6 +332,27 @@ def create_es_new_tst_2(packer, es_new_tst_2_msg):
  
 
   return packer.make_can_msg("NEW_TST_2", 0, values)
+  
+def create_es_lkas_master(packer, es_lkas_master_msg):
+  values = copy.copy(es_lkas_master_msg)
+
+  values["Signal1"] = 1     #JP Test carefull 7    Aus  1
+
+  return packer.make_can_msg("ES_LKAS_Master", 0, values)
+  
+def create_es_unknown1(packer, es_unknown1_msg):
+  values = copy.copy(es_unknown1_msg)
+
+  values["Signal1"] = 1     #JP Test carefull 7    Aus  1
+
+  return packer.make_can_msg("ES_UNKNOWN1", 1, values)
+
+def create_ss_state(packer, es_ss_state_msg):
+  values = copy.copy(es_ss_state_msg)
+
+  values["Signal1"] = 92     #JP Test SA 92    Aus  95 - May be related to fuel octane
+
+  return packer.make_can_msg("START_STOP_STATE", 0, values)
 
 def create_cruise_buttons(packer, sw_cruise_buttons_msg, cspeed_dn_cmd, cspeed_up_cmd):
   values = copy.copy(sw_cruise_buttons_msg)
@@ -339,12 +370,12 @@ def create_cruise_buttons(packer, sw_cruise_buttons_msg, cspeed_dn_cmd, cspeed_u
   
   return packer.make_can_msg("Cruise_Buttons", 0, values)
   
-#def create_steering_torque(packer, steering_torque_msg):
-#  values = copy.copy(steering_torque_msg)
+def create_steering_torque(packer, steering_torque_msg):
+  values = copy.copy(steering_torque_msg)
   
-#  #US ES#values["Signal1"] = 0     #JP alligned to Wilderness  - TO BE CHECKED
+  values["Signal1"] = 1     #JP alligned to Wilderness  - TO BE CHECKED
   
-#  return packer.make_can_msg("Steering_Torque", 0, values)
+  return packer.make_can_msg("Steering_Torque", 0, values)
 
 def create_dashlights(packer, dashlights_msg):
   values = copy.copy(dashlights_msg)

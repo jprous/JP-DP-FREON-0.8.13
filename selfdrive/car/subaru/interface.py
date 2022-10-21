@@ -23,7 +23,8 @@ class CarInterface(CarInterfaceBase):
       ret.enableBsm = 0x228 in fingerprint[0]
 
     ret.dashcamOnly = candidate in PREGLOBAL_CARS
-    ret.steerLimitAlert = False
+    
+    #ret.steerLimitAlert = False
     ret.steerRateCost = 0.7
     ret.steerLimitTimer = 0.4 #JP test 1
 
@@ -121,8 +122,8 @@ class CarInterface(CarInterfaceBase):
     self.dragonconf = dragonconf
     ret.cruiseState.enabled = common_interface_atl(ret, dragonconf.dpAtl)
     ret.canValid = self.cp.can_valid and self.cp_cam.can_valid
-    #ret.steeringRateLimited = self.CC.steer_rate_limited if self.CC is not None else False     # JP Test
-    ret.steeringRateLimited = True   # JP Test
+    ret.steeringRateLimited = self.CC.steer_rate_limited if self.CC is not None else False     # JP Test
+    #ret.steeringRateLimited = True   # JP Test
 
     ret.events = self.create_common_events(ret).to_msg()
 
