@@ -108,9 +108,13 @@ BO_ 282 ES_STEER_JP: 8 XXX
  SG_ Counter : 8|4@1+ (1,0) [0|15] "" XXX
  SG_ BLANK_SIGNAL : 12|4@1+ (1,0) [0|1] "" XXX
  SG_ NEW_SIGNAL_1 : 16|8@1+ (1,0) [0|1] "" XXX
- SG_ STEER_ANGLE : 24|6@1- (1,0) [0|1] "" XXX
- SG_ STEER_STEP : 30|11@1- (1,0) [0|1] "" XXX
- SG_ STEER_OUTPUT : 41|23@1- (1,0) [0|1] "" XXX
+ SG_ STEER_ANGLE : 24|17@1- (-0.01,0) [0|1] "" XXX
+ SG_ STEER_OUTPUT : 41|23@1- (-0.001,0) [0|1] "" XXX
+ 
+BO_ 289 ES_UNKNOWN1: 8 XXX
+ SG_ CHECKSUM : 0|8@1+ (1,0) [0|255] "" XXX
+ SG_ Counter : 8|4@1+ (1,0) [0|15] "" XXX
+ SG_ Signal1 : 19|1@1+ (1,0) [0|1] "" XXX
 
 BO_ 312 Brake_Pressure_L_R: 8 XXX
  SG_ CHECKSUM : 0|8@1+ (1,0) [0|255] "" XXX
@@ -274,12 +278,29 @@ BO_ 826 NEW_TST_2: 8 XXX
  SG_ CHECKSUM : 0|8@1+ (1,0) [0|255] "" XXX
  SG_ Counter : 8|4@1+ (1,0) [0|15] "" XXX
  SG_ NEW_SIGNAL_1 : 24|8@1+ (1,0) [0|255] "" XXX
+ 
+BO_ 842 ES_LKAS_Master: 8 XXX
+ SG_ CHECKSUM : 0|8@1+ (1,0) [0|1] "" XXX
+ SG_ Counter : 8|4@1+ (1,0) [0|1] "" XXX
+ SG_ Signal1 : 32|1@1+ (1,0) [0|1] "" XXX
 
+BO_ 1632 START_STOP_STATE: 8 XXX
+ SG_ CHECKSUM : 0|8@1+ (1,0) [0|255] "" XXX
+ SG_ Counter : 8|4@1+ (1,0) [0|15] "" XXX
+ SG_ Signal1 : 24|8@1+ (1,0) [0|255] "" XXX
 
 BO_ 1677 Dash_State: 8 XXX
  SG_ CHECKSUM : 0|8@1+ (1,0) [0|255] "" XXX
  SG_ Counter : 8|4@1+ (1,0) [0|15] "" XXX
  SG_ Units : 29|3@1+ (1,0) [0|7] "" XXX
+ 
+BO_ 1697 DATE_TIME: 8 XXX
+ SG_ SECONDS : 16|8@1+ (1,0) [0|255] "" XXX
+ SG_ MINUTES : 32|8@1+ (1,0) [0|255] "" XXX
+ SG_ HOUR : 40|8@1+ (1,0) [0|255] "" XXX
+ SG_ MONTH : 53|4@1+ (1,0) [0|1] "" XXX
+ SG_ YEAR : 57|5@1+ (1,0) [0|31] "" XXX
+ SG_ DAY : 48|5@1+ (1,0) [0|255] "" XXX
  
 
 CM_ SG_ 64 Throttle_Combo "Throttle Cruise + Pedal";
