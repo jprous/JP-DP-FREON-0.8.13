@@ -12,18 +12,19 @@ const int SUBARU_STANDSTILL_THRSLD = 20;  // about 1kph												//default 20,
 const int SUBARU_L_DRIVER_TORQUE_ALLOWANCE = 75;
 const int SUBARU_L_DRIVER_TORQUE_FACTOR = 10;
 
-const CanMsg SUBARU_TX_MSGS[] = {{0x11a, 0, 8}, {0x122, 0, 8}, {0x146, 0, 8}, {0x221, 0, 8}, {0x321, 0, 8}, {0x322, 0, 8}, {0x323, 0, 8}, {0x325, 0, 8}, {0x33a, 0, 8}, {0x40, 2, 8}, {0x122, 2, 8}};  //, {0x146, 0, 8}  , {0x11a, 0, 8}, {0x174, 0, 8} , {0x390, 0, 8}
+const CanMsg SUBARU_TX_MSGS[] = {{0x11a, 0, 8}, {0x121, 1, 8}, {0x122, 0, 8}, {0x146, 0, 8}, {0x221, 0, 8}, {0x321, 0, 8}, {0x322, 0, 8}, {0x323, 0, 8}, {0x325, 0, 8}, {0x33a, 0, 8}, {0x34a, 0, 8}, {0x40, 2, 8}, {0x660, 0, 8}, {0x119, 0, 8}};  //, {0x146, 0, 8} , {0x119, 0, 8} , {0x11a, 0, 8}, {0x174, 0, 8} , {0x390, 0, 8}, {0x121, 1, 8}, {0x122, 2, 8}
 #define SUBARU_TX_MSGS_LEN (sizeof(SUBARU_TX_MSGS) / sizeof(SUBARU_TX_MSGS[0]))
 
 AddrCheckStruct subaru_addr_checks[] = {
   {.msg = {{ 0x40, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 10000U}, { 0 }, { 0 }}},
+  {.msg = {{0x119, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 20000U}, { 0 }, { 0 }}},
   {.msg = {{0x11a, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 20000U}, { 0 }, { 0 }}},
   {.msg = {{0x13a, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 20000U}, { 0 }, { 0 }}},
   {.msg = {{0x13c, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 20000U}, { 0 }, { 0 }}},
   {.msg = {{0x146, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 20000U}, { 0 }, { 0 }}},
   {.msg = {{0x240, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 50000U}, { 0 }, { 0 }}},
 };
-//{.msg = {{0x119, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 20000U}, { 0 }, { 0 }}},
+// {.msg = {{0x119, 0, 8, .check_checksum = true, .max_counter = 15U, .expected_timestep = 20000U}, { 0 }, { 0 }}},
 
 #define SUBARU_ADDR_CHECK_LEN (sizeof(subaru_addr_checks) / sizeof(subaru_addr_checks[0]))
 addr_checks subaru_rx_checks = {subaru_addr_checks, SUBARU_ADDR_CHECK_LEN};
@@ -99,7 +100,7 @@ static int subaru_rx_hook(CANPacket_t *to_push) {
       gas_pressed = GET_BYTE(to_push, 4) != 0U;
     }
 
-    //generic_rx_checks((addr == 0x122)); //JP test
+    generic_rx_checks((addr == 0x122)); //JP test
 			
   }
   return valid;
@@ -280,21 +281,34 @@ static int subaru_fwd_hook(int bus_num, CANPacket_t *to_fwd) {
     // bus_fwd = 2;  // Camera CAN   //Check this - possible fault
     // Global platform
     // 0x40 Throttle
+	// 0x122 ES_LKAS || (addr == 0x122)
     // 0x139 Brake_Pedal
 	// 0x146 Cruise_Buttons || (addr == 0x146)
 	// 0x11a ES_STEER_JP || (addr == 0x11a) 
 	// 0x174 Engine_Stop_Start   
-    int block_msg = ((addr == 0x40) || (addr == 0x11a) || (addr == 0x122));  // to forward ES_LKAS on bus 0 as well
+	// 0x660 STOP_START_STATE  || (addr == 0x660)
+    int block_msg = ((addr == 0x40) || (addr == 0x11a) || (addr == 0x660));  // to forward ES_LKAS on bus 0 as well
     if (!block_msg) {
       bus_fwd = 2;  // Camera CAN
     }
   }
 
+  /*if (bus_num == 1) {
+	// Global platform 
+	// 0x121 ES_UNKNOWN1
+	
+	int block_msg = ((addr == 0x121));
+	if (!block_msg) {
+	  bus_fwd = 0;  // Main CAN
+	}
+  }*/
+
+
   if (bus_num == 2) {
     // Global platform
-	// 0x119 Steering_Torque
+	// 0x119 Steering_Torque || (addr == 0x119) 
 	// 0x11a ES_STEER_JP || (addr == 0x11a) 
-    // 0x122 ES_LKAS
+    // 0x122 ES_LKAS || (addr == 0x122)
 	// 0x146 Cruise_Buttons || (addr == 0x146)
 	// 0x174 Engine_Stop_Start  
     // 0x221 ES_Distance
@@ -303,8 +317,9 @@ static int subaru_fwd_hook(int bus_num, CANPacket_t *to_fwd) {
 	// 0x323 ES_Status_3 - Blue lines and blue car
     // 0x325 ES_Status_2 - RAB
 	// 0x33a NEW_TST_2
+	// 0x34a ES_LKAS_Master
 	// 0x390 Dashlights
-    int block_msg = ((addr == 0x11a) || (addr == 0x122) || (addr == 0x146) || (addr == 0x221) || (addr == 0x321) || (addr == 0x322) || (addr == 0x323) || (addr == 0x325) || (addr == 0x33a));
+    int block_msg = ((addr == 0x11a) || (addr == 0x119)  || (addr == 0x122) || (addr == 0x146) || (addr == 0x221) || (addr == 0x321) || (addr == 0x322) || (addr == 0x323) || (addr == 0x325) || (addr == 0x33a) || (addr == 0x34a));
     if (!block_msg) {
       bus_fwd = 0;  // Main CAN
     }
