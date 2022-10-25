@@ -109,20 +109,21 @@ class CarState(CarStateBase):
       ret.cruiseState.nonAdaptive = cp_cam.vl["ES_DashStatus"]["Conventional_Cruise"] == 1
       self.es_lkas_msg = copy.copy(cp_cam.vl["ES_LKAS_State"])
       self.cruise_state = cp_cam.vl["ES_DashStatus"]["Cruise_State"]
+    #self.brake_pedal_msg = copy.copy(cp.vl["Brake_Pedal"])
     self.car_follow = cp_cam.vl["ES_Distance"]["Car_Follow"]
     self.close_distance = cp_cam.vl["ES_Distance"]["Close_Distance"]
     self.throttle_msg = copy.copy(cp.vl["Throttle"])
     self.es_distance_msg = copy.copy(cp_cam.vl["ES_Distance"])
     self.es_dashstatus_msg = copy.copy(cp_cam.vl["ES_DashStatus"])
     self.es_lanecenter_msg = copy.copy(cp_cam.vl["ES_LANE_CENTER"])
-    self.es_status_2_msg = copy.copy(cp_cam.vl["ES_Status_2"])
-    self.es_new_tst_2_msg = copy.copy(cp_cam.vl["NEW_TST_2"])
-    self.es_lkas_master_msg = copy.copy(cp_cam.vl["ES_LKAS_Master"])
-    self.es_unknown1_msg = copy.copy(cp_cam.vl["ES_UNKNOWN1"])
+    #self.es_status_2_msg = copy.copy(cp_cam.vl["ES_Status_2"])
+    #self.es_new_tst_2_msg = copy.copy(cp_cam.vl["NEW_TST_2"])
+    #self.es_lkas_master_msg = copy.copy(cp_cam.vl["ES_LKAS_Master"])
+    #self.es_unknown1_msg = copy.copy(cp_cam.vl["ES_UNKNOWN1"])
     #self.prev_cruise_buttons = self.cruise_buttons
     self.sw_cruise_buttons_msg = copy.copy(cp.vl["Cruise_Buttons"]) 
-    self.sw_ss_state_msg = copy.copy(cp.vl["START_STOP_STATE"]) 
-    self.steering_torque_msg = copy.copy(cp.vl["Steering_Torque"])
+    #self.sw_ss_state_msg = copy.copy(cp.vl["START_STOP_STATE"]) 
+    #self.steering_torque_msg = copy.copy(cp.vl["Steering_Torque"])
     #self.dashlights_msg = copy.copy(cp.vl["Dashlights"])
     #self.es_lkas_steer_msg = copy.copy(cp_cam.vl["ES_LKAS"])
     self.es_steerjp_msg = copy.copy(cp.vl["ES_STEER_JP"])
@@ -194,8 +195,8 @@ class CarState(CarStateBase):
       ("STEER_ANGLE","ES_STEER_JP"),
       ("STEER_OUTPUT","ES_STEER_JP"),
       
-      ("Counter","START_STOP_STATE"),
-      ("Signal1","START_STOP_STATE"),
+      #("Counter","START_STOP_STATE"),
+      #("Signal1","START_STOP_STATE"),
       
       
     ]
@@ -211,7 +212,7 @@ class CarState(CarStateBase):
       ("BodyInfo", 1),
       ("Cruise_Buttons", 20),
       ("ES_STEER_JP", 100),
-      ("START_STOP_STATE", 20),
+      #("START_STOP_STATE", 20),
     ]
 
     if CP.enableBsm:
@@ -393,19 +394,19 @@ class CarState(CarStateBase):
         ("Signal2", "ES_LANE_CENTER"),
         ("Signal3", "ES_LANE_CENTER"),
         
-        ("Counter", "ES_Status_2"),
-        ("Signal1", "ES_Status_2"),
-        ("Signal2", "ES_Status_2"),
-        ("Signal3", "ES_Status_2"),
+        #("Counter", "ES_Status_2"),
+        #("Signal1", "ES_Status_2"),
+        #("Signal2", "ES_Status_2"),
+        #("Signal3", "ES_Status_2"),
         
-        ("Counter", "NEW_TST_2"),
-        ("NEW_SIGNAL_1", "NEW_TST_2"),
+        #("Counter", "NEW_TST_2"),
+        #("NEW_SIGNAL_1", "NEW_TST_2"),
         
-        ("Counter", "ES_LKAS_Master"),
-        ("Signal1", "ES_LKAS_Master"),
+        #("Counter", "ES_LKAS_Master"),
+        #("Signal1", "ES_LKAS_Master"),
         
-        ("Counter", "ES_UNKNOWN1"),
-        ("Signal1", "ES_UNKNOWN1"),
+        #("Counter", "ES_UNKNOWN1"),
+        #("Signal1", "ES_UNKNOWN1"),
         
         #("Counter","ES_LKAS"),
         #("SET_1","ES_LKAS"),
@@ -419,10 +420,10 @@ class CarState(CarStateBase):
         ("ES_Distance", 20),
         ("ES_LKAS_State", 10),
         ("ES_LANE_CENTER", 10),
-        ("ES_Status_2", 10),
-        ("NEW_TST_2", 50),
-        ("ES_LKAS_Master", 20),
-        ("ES_UNKNOWN1", 20),
+        #("ES_Status_2", 10),
+        #("NEW_TST_2", 50),
+        #("ES_LKAS_Master", 20),
+        #("ES_UNKNOWN1", 20),
         #("ES_LKAS", 20),
       ]
 

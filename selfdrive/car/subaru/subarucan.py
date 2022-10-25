@@ -36,20 +36,20 @@ def create_steering_control(packer, apply_steer, frame, steer_step):
     
 #  return packer.make_can_msg("ES_LKAS", 2, values)
 
-def create_Engine_Stop_Start(packer, frame, steer_step):
+# def create_Engine_Stop_Start(packer, frame, steer_step):
 
-  #idx = frame / steer_step) % 16
-  idx = frame % 16
+  # #idx = frame / steer_step) % 16
+  # idx = frame % 16
 
-  values = {
-    "Counter": idx,
-    "SIG_1" : 1,
-    "STOP_START_STATE": 2
-  }
+  # values = {
+    # "Counter": idx,
+    # "SIG_1" : 1,
+    # "STOP_START_STATE": 2
+  # }
 
-  #Check possible return on CAN2 also
-  #packer.make_can_msg("Engine_Stop_Start", 2, values)  
-  return packer.make_can_msg("Engine_Stop_Start", 0, values)
+  # #Check possible return on CAN2 also
+  # #packer.make_can_msg("Engine_Stop_Start", 2, values)  
+  # return packer.make_can_msg("Engine_Stop_Start", 0, values)
   
 def create_Engine_Stop_Start2(packer, frame, steer_step):
 
@@ -274,16 +274,16 @@ def create_es_lanecenter(lkas_mode, enabled, packer, es_lanecenter_msg):
 
   return packer.make_can_msg("ES_LANE_CENTER", 0, values)
   
-def create_es_lkas_steer(packer, es_lkas_steer_msg):
-  values = copy.copy(es_lkas_steer_msg)
+# def create_es_lkas_steer(packer, es_lkas_steer_msg):
+  # values = copy.copy(es_lkas_steer_msg)
 
-  # Enable LKAS for market specific models
-  # Find the correct variable
+  # # Enable LKAS for market specific models
+  # # Find the correct variable
   
-  values["SET_1"] = 0     #JP alligned to Wilderness  - CHECKED
-  values["SET_2"] = 1     #JP alligned to Wilderness  - CHECKED
+  # values["SET_1"] = 0     #JP alligned to Wilderness  - CHECKED
+  # values["SET_2"] = 1     #JP alligned to Wilderness  - CHECKED
 
-  return packer.make_can_msg("ES_LKAS", 0, values)
+  # return packer.make_can_msg("ES_LKAS", 0, values)
   
 def create_es_steerjp(lkas_mode, enabled, steer_angle, apply_steer, packer, es_steerjp_msg):
   values = copy.copy(es_steerjp_msg)
@@ -310,49 +310,49 @@ def create_es_steerjp(lkas_mode, enabled, steer_angle, apply_steer, packer, es_s
     values["NEW_SIGNAL_1"] = 3     #JP alligned to Wilderness  - TO BE CHECKED
     values["STEER_OUTPUT"] = values["STEER_ANGLE"] * 1     #JP alligned to Wilderness  - TO BE CHECKED
 
-  packer.make_can_msg("ES_STEER_JP", 2, values)
+  #packer.make_can_msg("ES_STEER_JP", 2, values)
   return packer.make_can_msg("ES_STEER_JP", 0, values)
 
-def create_es_status_2(packer, es_status_2_msg):
-  values = copy.copy(es_status_2_msg)
+# def create_es_status_2(packer, es_status_2_msg):
+  # values = copy.copy(es_status_2_msg)
 
-  # Enable LKAS for market specific models RAB
-  # Find the correct variable
-  values["Signal1"] = 7     #JP Test carefull 7    Aus  12
-  values["Signal2"] = 0     #JP Test carefull  0    Aus 3
-  values["Signal3"] = 12     #JP Test carefull 12   Aus 12/14
+  # # Enable LKAS for market specific models RAB
+  # # Find the correct variable
+  # values["Signal1"] = 7     #JP Test carefull 7    Aus  12
+  # values["Signal2"] = 0     #JP Test carefull  0    Aus 3
+  # values["Signal3"] = 12     #JP Test carefull 12   Aus 12/14
 
-  return packer.make_can_msg("ES_Status_2", 0, values)
+  # return packer.make_can_msg("ES_Status_2", 0, values)
   
-def create_es_new_tst_2(packer, es_new_tst_2_msg):
-  values = copy.copy(es_new_tst_2_msg)
+# def create_es_new_tst_2(packer, es_new_tst_2_msg):
+  # values = copy.copy(es_new_tst_2_msg)
 
-  # Find the correct variable
-  values["NEW_SIGNAL_1"] = 64     #JP alligned to Wilderness  - TO BE CHECKED  64 alligns to crosstrek set value
+  # # Find the correct variable
+  # values["NEW_SIGNAL_1"] = 64     #JP alligned to Wilderness  - TO BE CHECKED  64 alligns to crosstrek set value
  
 
-  return packer.make_can_msg("NEW_TST_2", 0, values)
+  # return packer.make_can_msg("NEW_TST_2", 0, values)
   
-def create_es_lkas_master(packer, es_lkas_master_msg):
-  values = copy.copy(es_lkas_master_msg)
+# def create_es_lkas_master(packer, es_lkas_master_msg):
+  # values = copy.copy(es_lkas_master_msg)
 
-  values["Signal1"] = 1     #JP Test carefull 7    Aus  1
+  # values["Signal1"] = 1     #JP Test carefull 7    Aus  1
 
-  return packer.make_can_msg("ES_LKAS_Master", 0, values)
+  # return packer.make_can_msg("ES_LKAS_Master", 0, values)
   
-def create_es_unknown1(packer, es_unknown1_msg):
-  values = copy.copy(es_unknown1_msg)
+# def create_es_unknown1(packer, es_unknown1_msg):
+  # values = copy.copy(es_unknown1_msg)
 
-  values["Signal1"] = 1     #JP Test carefull 7    Aus  1
+  # values["Signal1"] = 1     #JP Test carefull 7    Aus  1
 
-  return packer.make_can_msg("ES_UNKNOWN1", 1, values)
+  # return packer.make_can_msg("ES_UNKNOWN1", 1, values)
 
-def create_ss_state(packer, es_ss_state_msg):
-  values = copy.copy(es_ss_state_msg)
+# def create_ss_state(packer, es_ss_state_msg):
+  # values = copy.copy(es_ss_state_msg)
 
-  values["Signal1"] = 92     #JP Test SA 92    Aus  95 - May be related to fuel octane
+  # values["Signal1"] = 92     #JP Test SA 92    Aus  95 - May be related to fuel octane
 
-  return packer.make_can_msg("START_STOP_STATE", 0, values)
+  # return packer.make_can_msg("START_STOP_STATE", 0, values)
 
 def create_cruise_buttons(packer, sw_cruise_buttons_msg, cspeed_dn_cmd, cspeed_up_cmd):
   values = copy.copy(sw_cruise_buttons_msg)
@@ -366,21 +366,19 @@ def create_cruise_buttons(packer, sw_cruise_buttons_msg, cspeed_dn_cmd, cspeed_u
   if ((cspeed_up_cmd == True) and (cspeed_dn_cmd == False)):
     values["Resume"] = 1
     
-  
-  
   return packer.make_can_msg("Cruise_Buttons", 0, values)
   
-def create_steering_torque(packer, steering_torque_msg):
-  values = copy.copy(steering_torque_msg)
+# def create_steering_torque(packer, steering_torque_msg):
+  # values = copy.copy(steering_torque_msg)
   
-  values["Signal1"] = 1     #JP alligned to Wilderness  - TO BE CHECKED
+  # values["Signal1"] = 1     #JP alligned to Wilderness  - TO BE CHECKED
   
-  return packer.make_can_msg("Steering_Torque", 0, values)
+  # return packer.make_can_msg("Steering_Torque", 0, values)
 
 def create_dashlights(packer, dashlights_msg):
   values = copy.copy(dashlights_msg)
   
-  values["STOP_START"] = 1     #JP alligned to Wilderness  - TO BE CHECKED
+  #values["STOP_START"] = 1     #JP alligned to Wilderness  - TO BE CHECKED
   
   return packer.make_can_msg("Dashlights", 0, values)
 
@@ -392,16 +390,16 @@ def create_throttle(packer, throttle_msg, throttle_cmd):
 
   return packer.make_can_msg("Throttle", 2, values)
 
-def create_brake_pedal(packer, brake_pedal_msg, speed_cmd, brake_cmd):
+# def create_brake_pedal(packer, brake_pedal_msg, speed_cmd, brake_cmd):
 
-  values = copy.copy(brake_pedal_msg)
-  if speed_cmd:
-    values["Speed"] = 3
-  if brake_cmd:
-    values["Brake_Pedal"] = 5
-    values["Brake_Lights"] = 1
+  # values = copy.copy(brake_pedal_msg)
+  # if speed_cmd:
+    # values["Speed"] = 3
+  # if brake_cmd:
+    # values["Brake_Pedal"] = 5
+    # values["Brake_Lights"] = 1
 
-  return packer.make_can_msg("Brake_Pedal", 2, values)
+  # return packer.make_can_msg("Brake_Pedal", 2, values)
   
 # *** Subaru Pre-global ***
 

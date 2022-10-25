@@ -16,14 +16,15 @@ class CarController():
     self.es_distance_cnt = -1
     self.es_lkas_cnt = -1
     self.es_lanecenter_cnt = -1
-    self.es_status_2_cnt = -1
-    self.es_unknown1_cnt = -1
-    self.es_new_tst_2_cnt = -1
-    self.es_lkas_master_cnt = -1
-    self.es_ss_state_cnt = -1
-    self.es_lkas_steer_cnt = -1
+    #self.es_status_2_cnt = -1
+    #self.es_unknown1_cnt = -1
+    #self.es_new_tst_2_cnt = -1
+    #self.es_lkas_master_cnt = -1
+    #self.es_ss_state_cnt = -1
+    #self.es_lkas_steer_cnt = -1
     self.es_steerjp_cnt = -1
-    self.steering_torque_cnt = -1
+    #self.steering_torque_cnt = -1
+   # self.brake_pedal_cnt = -1
     self.dashlights_cnt = -1
     self.cruise_buttons_cnt = -1
     self.es_dashstatus_cnt = -1
@@ -50,7 +51,7 @@ class CarController():
     self.up_button_press_cnt = -1
     
     self.cruise_cancel_btn_prev = 0
-    self.lkas_mode = 1      #Modes:   1: Stock LKAS + lane centering  2:Stock LKAS + lane centering + vehicle follow 3: Stock LKAS (white lines) 4: Openpilot (green lines)
+    self.lkas_mode = 3      #Modes:   1: Stock LKAS + lane centering  2:Stock LKAS + lane centering + vehicle follow 3: Stock LKAS (white lines) 4: Openpilot (green lines)
 
     self.p = CarControllerParams(CP)
     self.packer = CANPacker(DBC[CP.carFingerprint]['pt'])
@@ -59,8 +60,8 @@ class CarController():
 
     can_sends = []
 
-    if (frame == 0):
-      can_sends.append(subarucan.create_steering_control(self.packer, 0, frame, self.p.STEER_STEP))
+    #if (frame == 0):
+    #  can_sends.append(subarucan.create_steering_control(self.packer, 0, frame, self.p.STEER_STEP))
     
     #can_sends.append(subarucan.create_Engine_Stop_Start(self.packer, frame, self.p.STEER_STEP))
     #can_sends.append(subarucan.create_Engine_Stop_Start2(self.packer, frame, self.p.STEER_STEP))
@@ -80,11 +81,7 @@ class CarController():
     # *** steering ***
     if (frame % self.p.STEER_STEP) == 0:
 
-      apply_steer = int(round(actuators.steer * self.p.STEER_MAX))
-      #  **** JP test ****  apply_steer = 0
-
-      #up steering with speed
-      # apply_steer = apply_steer * (1.3-(CS.out.vEgo * CV.MS_TO_KPH) * 0.005)
+      apply_steer = int(round(actuators.steer * self.p.STEER_MAX))      
       
       # limits due to driver torque
 
@@ -111,9 +108,7 @@ class CarController():
         if CS.CP.carFingerprint in PREGLOBAL_CARS:
           can_sends.append(subarucan.create_preglobal_steering_control(self.packer, apply_steer, frame, self.p.STEER_STEP))
         else:
-          can_sends.append(subarucan.create_steering_control(self.packer, apply_steer, frame, self.p.STEER_STEP)) #  **** JP alternative test ****  
-          #can_sends.append(subarucan.create_steering_control2(self.packer, apply_steer, frame, self.p.STEER_STEP)) #  **** JP test ****  
-        
+          can_sends.append(subarucan.create_steering_control(self.packer, apply_steer, frame, self.p.STEER_STEP)) #  **** JP alternative test ****         
         
 
       self.apply_steer_last = apply_steer
@@ -287,19 +282,19 @@ class CarController():
       #    can_sends.append(subarucan.create_es_lkas_steer(self.packer, CS.es_lkas_steer_msg))
       #    self.es_lkas_steer_cnt = CS.es_lkas_steer_msg["Counter"]
       
-      if self.es_status_2_cnt != CS.es_status_2_msg["Counter"]:
-        can_sends.append(subarucan.create_es_status_2(self.packer, CS.es_status_2_msg))
-        self.es_status_2_cnt = CS.es_status_2_msg["Counter"]
+      # if self.es_status_2_cnt != CS.es_status_2_msg["Counter"]:
+        # can_sends.append(subarucan.create_es_status_2(self.packer, CS.es_status_2_msg))
+        # self.es_status_2_cnt = CS.es_status_2_msg["Counter"]
 
       #*** JP test - ES_LKAS_master message forward ***
-      if self.es_lkas_master_cnt != CS.es_lkas_master_msg["Counter"]:
-        can_sends.append(subarucan.create_es_lkas_master(self.packer, CS.es_lkas_master_msg))
-        self.es_lkas_master_cnt = CS.es_lkas_master_msg["Counter"]        
+      # if self.es_lkas_master_cnt != CS.es_lkas_master_msg["Counter"]:
+        # can_sends.append(subarucan.create_es_lkas_master(self.packer, CS.es_lkas_master_msg))
+        # self.es_lkas_master_cnt = CS.es_lkas_master_msg["Counter"]        
      
      
-      if self.es_new_tst_2_cnt != CS.es_new_tst_2_msg["Counter"]:
-        can_sends.append(subarucan.create_es_new_tst_2(self.packer, CS.es_new_tst_2_msg))
-        self.es_new_tst_2_cnt = CS.es_new_tst_2_msg["Counter"]
+      # if self.es_new_tst_2_cnt != CS.es_new_tst_2_msg["Counter"]:
+        # can_sends.append(subarucan.create_es_new_tst_2(self.packer, CS.es_new_tst_2_msg))
+        # self.es_new_tst_2_cnt = CS.es_new_tst_2_msg["Counter"]
 
       if self.cruise_buttons_cnt != CS.sw_cruise_buttons_msg["Counter"]:
         can_sends.append(subarucan.create_cruise_buttons(self.packer, CS.sw_cruise_buttons_msg, cspeed_dn_cmd, cspeed_up_cmd))
@@ -310,25 +305,29 @@ class CarController():
         can_sends.append(subarucan.create_es_steerjp(self.lkas_mode, enabled, actuators.steeringAngleDeg, self.apply_steer_last, self.packer, CS.es_steerjp_msg))
         self.es_steerjp_cnt = CS.es_steerjp_msg["Counter"]  
       
-      if self.steering_torque_cnt != CS.steering_torque_msg["Counter"]:
-        can_sends.append(subarucan.create_steering_torque(self.packer, CS.steering_torque_msg))
-        self.steering_torque_cnt = CS.steering_torque_msg["Counter"]
+      # if self.steering_torque_cnt != CS.steering_torque_msg["Counter"]:
+        # can_sends.append(subarucan.create_steering_torque(self.packer, CS.steering_torque_msg))
+        # self.steering_torque_cnt = CS.steering_torque_msg["Counter"]
         
       
       #*** JP test - es_unknown1 message forward ***
-      if self.es_unknown1_cnt != CS.es_unknown1_msg["Counter"]:
-        can_sends.append(subarucan.create_es_unknown1(self.packer, CS.es_unknown1_msg))
-        self.es_unknown1_cnt = CS.es_unknown1_msg["Counter"]   
+      #if self.es_unknown1_cnt != CS.es_unknown1_msg["Counter"]:
+      #  can_sends.append(subarucan.create_es_unknown1(self.packer, CS.es_unknown1_msg))
+      #  self.es_unknown1_cnt = CS.es_unknown1_msg["Counter"]   
         
       #*** JP test - Start_Stop_State message forward ***
-      if self.es_ss_state_cnt != CS.sw_ss_state_msg["Counter"]:
-        can_sends.append(subarucan.create_ss_state(self.packer, CS.sw_ss_state_msg))
-        self.es_ss_state_cnt = CS.sw_ss_state_msg["Counter"]   
+      #if self.es_ss_state_cnt != CS.sw_ss_state_msg["Counter"]:
+      #  can_sends.append(subarucan.create_ss_state(self.packer, CS.sw_ss_state_msg))
+      #  self.es_ss_state_cnt = CS.sw_ss_state_msg["Counter"]   
         
       
       #if self.dashlights_cnt != CS.dashlights_msg["Counter"]:
       #  can_sends.append(subarucan.create_dashlights(self.packer, CS.dashlights_msg))
       #  self.dashlights_cnt = CS.dashlights_msg["Counter"]
+      
+      # if self.brake_pedal_cnt != CS.brake_pedal_msg["Counter"]:
+        # can_sends.append(subarucan.create_brake_pedal(self.packer, CS.brake_pedal_msg, speed_cmd, pcm_cancel_cmd))
+        # self.brake_pedal_cnt = CS.brake_pedal_msg["Counter"]
 
     new_actuators = actuators.copy()
     new_actuators.steer = self.apply_steer_last / self.p.STEER_MAX
