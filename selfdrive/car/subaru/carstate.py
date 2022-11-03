@@ -19,6 +19,8 @@ class CarState(CarStateBase):
     self.hudspd = 0;
     self.steerout = 0;
     self.speed_limit = 255;
+    self.prev_lkas_btn = 0;
+    #self.es_lkas_steer = 0;
     #self.sm = messaging.SubMaster(['liveMapData'], poll=['liveMapData'], ignore_avg_freq=['radarState'])
 
   def update(self, cp, cp_cam):
@@ -115,7 +117,7 @@ class CarState(CarStateBase):
     self.throttle_msg = copy.copy(cp.vl["Throttle"])
     self.es_distance_msg = copy.copy(cp_cam.vl["ES_Distance"])
     self.es_dashstatus_msg = copy.copy(cp_cam.vl["ES_DashStatus"])
-    self.es_lanecenter_msg = copy.copy(cp_cam.vl["ES_LANE_CENTER"])
+    #self.es_lanecenter_msg = copy.copy(cp_cam.vl["ES_LANE_CENTER"])
     #self.es_status_2_msg = copy.copy(cp_cam.vl["ES_Status_2"])
     #self.es_new_tst_2_msg = copy.copy(cp_cam.vl["NEW_TST_2"])
     #self.es_lkas_master_msg = copy.copy(cp_cam.vl["ES_LKAS_Master"])
@@ -125,12 +127,23 @@ class CarState(CarStateBase):
     #self.sw_ss_state_msg = copy.copy(cp.vl["START_STOP_STATE"]) 
     #self.steering_torque_msg = copy.copy(cp.vl["Steering_Torque"])
     #self.dashlights_msg = copy.copy(cp.vl["Dashlights"])
-    #self.es_lkas_steer_msg = copy.copy(cp_cam.vl["ES_LKAS"])
-    self.es_steerjp_msg = copy.copy(cp.vl["ES_STEER_JP"])
+    #self.es_lkas_fwd_msg = copy.copy(cp_cam.vl["ES_LKAS"])
+    #self.es_steerjp_msg = copy.copy(cp.vl["ES_STEER_JP"])
     
-    self.cruise_cancel_btn = 0
-    if ((cp_cam.vl["ES_Distance"]["Cruise_Set"] == 1) and (cp_cam.vl["ES_Distance"]["Cruise_Resume"] == 1)):
-      self.cruise_cancel_btn = 1
+    #See if the LKAS/Cancel button was pressed
+    self.cruise_cancel_btn = 0 
+    #self.es_lkas_steer = cp_cam.vl["ES_LKAS"]["LKAS_Request"]
+    self.cruis_lkas_btn = cp_cam.vl["ES_LKAS_State"]["LKAS_Dash_State"]
+    
+    #Only check instances when not steering
+    if self.cruis_lkas_btn < 2:
+      
+      if self.cruis_lkas_btn == self.prev_lkas_btn:
+        self.cruise_cancel_btn = 0
+      else:
+        self.cruise_cancel_btn = 1
+      
+      self.prev_lkas_btn = self.cruis_lkas_btn
 
     # dp - brake lights
     ret.brakeLights = ret.brakePressed
@@ -189,11 +202,11 @@ class CarState(CarStateBase):
       ("Resume","Cruise_Buttons"),
       ("Signal2","Cruise_Buttons"),
       
-      ("Counter","ES_STEER_JP"),
-      ("BLANK_SIGNAL","ES_STEER_JP"),
-      ("NEW_SIGNAL_1","ES_STEER_JP"),
-      ("STEER_ANGLE","ES_STEER_JP"),
-      ("STEER_OUTPUT","ES_STEER_JP"),
+      #("Counter","ES_STEER_JP"),
+      #("BLANK_SIGNAL","ES_STEER_JP"),
+      #("NEW_SIGNAL_1","ES_STEER_JP"),
+      #("STEER_ANGLE","ES_STEER_JP"),
+      #("STEER_OUTPUT","ES_STEER_JP"),
       
       #("Counter","START_STOP_STATE"),
       #("Signal1","START_STOP_STATE"),
@@ -211,7 +224,7 @@ class CarState(CarStateBase):
       ("Steering_Torque", 50),
       ("BodyInfo", 1),
       ("Cruise_Buttons", 20),
-      ("ES_STEER_JP", 100),
+      #("ES_STEER_JP", 100),
       #("START_STOP_STATE", 20),
     ]
 
@@ -389,10 +402,10 @@ class CarState(CarStateBase):
         ("ACC_ACEL_CHAR", "ES_LKAS_State"),
         ("Signal5", "ES_LKAS_State"),
 
-        ("Counter", "ES_LANE_CENTER"),
-        ("Signal1", "ES_LANE_CENTER"),
-        ("Signal2", "ES_LANE_CENTER"),
-        ("Signal3", "ES_LANE_CENTER"),
+        #("Counter", "ES_LANE_CENTER"),
+        #("Signal1", "ES_LANE_CENTER"),
+        #("Signal2", "ES_LANE_CENTER"),
+        #("Signal3", "ES_LANE_CENTER"),
         
         #("Counter", "ES_Status_2"),
         #("Signal1", "ES_Status_2"),
@@ -419,7 +432,7 @@ class CarState(CarStateBase):
         ("ES_DashStatus", 10),
         ("ES_Distance", 20),
         ("ES_LKAS_State", 10),
-        ("ES_LANE_CENTER", 10),
+        #("ES_LANE_CENTER", 10),
         #("ES_Status_2", 10),
         #("NEW_TST_2", 50),
         #("ES_LKAS_Master", 20),
