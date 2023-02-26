@@ -132,6 +132,12 @@ class CarController:
 
     else:
     
+      if pcm_cancel_cmd and (self.frame - self.last_cancel_frame) > 0.2:
+        bus = 1 if self.CP.carFingerprint in GLOBAL_GEN2 else 0
+        can_sends.append(subarucan.create_es_distance(self.packer, CS.es_distance_msg, bus, pcm_cancel_cmd))
+        self.last_cancel_frame = self.frame
+    
+    
       # *** speed control - check every half second - km/h - JPR ***
       cspeed_dn_cmd = False
       cspeed_up_cmd = False
@@ -389,6 +395,7 @@ class CarController:
 
     new_actuators = actuators.copy()
     new_actuators.steer = self.apply_steer_last / self.p.STEER_MAX
+    new_actuators.steerOutputCan = self.apply_steer_last                                                    
 
     self.frame += 1
     return new_actuators, can_sends
