@@ -19,6 +19,12 @@ class CarControllerParams:
     self.STEER_DRIVER_ALLOWANCE = 60   # allowed driver torque before start limiting
     self.STEER_DRIVER_MULTIPLIER = 50  # weight driver torque heavily
     self.STEER_DRIVER_FACTOR = 1       # from dbc
+    self.ACC_MIN_DIST = 2.5            # stop and go min distance threshold
+    self.ACC_MAX_DIST = 5.5            # stop and go max distance threshold
+    
+    self.SPDL_MIN = 29                 # min speed limit setting in kph, will be converted to mph if required in carcontroller.py
+    self.SPDL_MAX = 131                # max speed limit setting in kph, will be converted to mph if required in in carcontroller.py
+    self.SPDL_DLT = 10                 # max speed delta setting in kph, will be converted to mph if required in in carcontroller.py
 
     if CP.carFingerprint in GLOBAL_GEN2:
       self.STEER_MAX = 1000
@@ -63,7 +69,7 @@ CAR_INFO: Dict[str, Union[SubaruCarInfo, List[SubaruCarInfo]]] = {
   ],
   CAR.IMPREZA_2020: [
     SubaruCarInfo("Subaru Impreza 2020-22"),
-    SubaruCarInfo("Subaru Crosstrek 2020-23"),
+    SubaruCarInfo("Subaru Crosstrek 2020-21"),
     SubaruCarInfo("Subaru XV 2020-21"),
   ],
   CAR.FORESTER: SubaruCarInfo("Subaru Forester 2019-21", "All"),
@@ -196,7 +202,6 @@ FW_VERSIONS = {
       b'\xaa!dt\a',
       b'\xc5!ar\a',
       b'\xbe!as\a',
-      b'\xc5!as\x07',
       b'\xc5!ds\a',
       b'\xc5!`s\a',
       b'\xaa!au\a',
@@ -235,14 +240,12 @@ FW_VERSIONS = {
       b'\x9a\xc0\000\000',
       b'\n\xc0\004\000',
       b'\x9a\xc0\x04\x00',
-      b'\n\xc0\x04\x01',
     ],
     (Ecu.fwdCamera, 0x787, None): [
       b'\000\000eb\037@ \"',
       b'\000\000e\x8f\037@ )',
       b'\x00\x00eq\x1f@ "',
       b'\x00\x00eq\x00\x00\x00\x00',
-      b'\x00\x00e\x8f\x00\x00\x00\x00',
     ],
     (Ecu.engine, 0x7e0, None): [
       b'\xca!ap\a',
@@ -252,7 +255,6 @@ FW_VERSIONS = {
       b'\xcc!fp\a',
       b'\xca!f@\x07',
       b'\xca!fp\x07',
-      b'\xf3"f@\x07',
     ],
     (Ecu.transmission, 0x7e1, None): [
       b'\xe6\xf5\004\000\000',
@@ -261,7 +263,6 @@ FW_VERSIONS = {
       b'\xe7\xf5D0\000',
       b'\xf1\x00\xd7\x10@',
       b'\xe6\xf5D0\x00',
-      b'\xe9\xf6F0\x00',
     ],
   },
   CAR.FORESTER: {
@@ -465,7 +466,6 @@ FW_VERSIONS = {
       b'\xa1  \x08\x02',
       b'\xa1 \x06\x02',
       b'\xa1  \x08\x00',
-      b'\xa1 "\t\x00',
     ],
     (Ecu.eps, 0x746, None): [
       b'\x9b\xc0\x10\x00',
@@ -487,7 +487,6 @@ FW_VERSIONS = {
       b'\xe2"`p\x07',
       b'\xf1\x82\xe2,\xa0@\x07',
       b'\xbc"`q\x07',
-      b'\xe3,\xa0@\x07',
     ],
     (Ecu.transmission, 0x7e1, None): [
       b'\xa5\xfe\xf7@\x00',
